@@ -6,18 +6,74 @@ on:
     branches:
       - feature/*
 
+env:
+  application-name: 'my-app'
+  node-version: '16.13.1'
+
 jobs:
+  dynamic-variables:
+    outputs:
+      node-version: ${{ steps.node-version.outputs.value }}
+      application-full-slug: ${{ steps.application-full-slug.outputs.value }}
+      deployment-owner-type: ${{ steps.deployment-owner-type.outputs.value }}
+      is-mattermost-hooked: ${{ steps.is-mattermost-hooked.outputs.value }}
+      is-discord-hooked: ${{ steps.is-discord-hooked.outputs.value }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Node version from env variable
+        id: node-version
+        run: |
+          NODE_VERSION=${{ env.node-version }}
+          echo "::set-output name=value::$NODE_VERSION"
+
+      - name: Deployed application full slug
+        id: application-full-slug
+        run: |
+          BRANCH_SHORT_REF=$(echo ${{ github.event.ref }} | cut -d'/' -f 4)
+          APPLICATION_SLUG=${{ env.application-name }}
+          echo "::set-output name=value::$APPLICATION_SLUG-$BRANCH_SHORT_REF"
+
+      - name: Deployement Owner type ('personnal' | 'organisation')
+        id: deployment-owner-type
+        run: |
+          TYPE=${{ secrets.CLEVER_ORG_ID != '' && 'organisation' || 'personnal' }}
+          echo "::set-output name=value::$TYPE"
+
+      - name: Has a mattermost webhook for notification been defined
+        id: is-mattermost-hooked
+        run: |
+          IS_HOOKED=${{ secrets.MATTERMOST_NOTIFY_HOOK_URL != '' }}
+          echo "::set-output name=value::$IS_HOOKED"
+
+      - name: Has a discord webhook for notification been defined
+        id: is-discord-hooked
+        run: |
+          IS_HOOKED=${{ secrets.DISCORD_NOTIFY_HOOK_URL != '' }}
+          echo "::set-output name=value::$IS_HOOKED"
+
+
   dependencies:
+    needs:
+      - dynamic-variables
     uses: ./.github/workflows/_dependencies.reusable.yml
     with:
-      node-version: '16.13.1'
+      node-version: ${{ needs.dynamic-variables.outputs.node-version }}
 
   build:
     needs: dependencies
     runs-on: ubuntu-latest
     steps:
+      - name: Retrieve the branch files
+        uses: actions/checkout@v2
+
+      - name: Retrieve dependencies
+        uses: actions/cache@v2
+        with:
+          key: node_modules-${{ hashFiles('yarn.lock') }}
+          path: node_modules
+
       - name: Build
-        run: tsc
+        run: yarn run build
 
   validation:
     needs: dependencies
@@ -25,22 +81,38 @@ jobs:
 
   deploy:
     needs:
+      - dynamic-variables
       - build
       - validation
     uses: ./.github/workflows/_deploy-node-application.clevercloud.reusable.yml
     with:
-      application-full-name: 'oklm-${GITHUB_REF##*/}'
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-full-slug }}
+      deployment-owner-type: ${{ needs.dynamic-variables.outputs.deployment-owner-type }}
     secrets:
       CLEVER_ORG_ID: ${{ secrets.CLEVER_ORG_ID }}
       CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
       CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
 
-#  notify:
-#    needs:
-#      - deploy
-#    uses: ./.github/workflows/_notify-deployment.mattermost.reusable.yml
-#    with:
-#      application-full-name: 'oklm-${GITHUB_REF##*/}'
-#      deployed-domain: ${{ needs.deploy.outputs.deployed-domain }}
-#    secrets:
-#      MATTERMOST_NOTIFY_HOOK_URL: ${{ secrets.MATTERMOST_NOTIFY_HOOK_URL }}
+  notify-mattermost:
+    if: ${{ needs.dynamic-variables.outputs.is-mattermost-hooked == 'true' }}
+    needs:
+      - dynamic-variables
+      - deploy
+    uses: ./.github/workflows/_notify-deployment.mattermost.reusable.yml
+    with:
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-full-slug }}
+      deployed-domain: ${{ needs.deploy.outputs.deployed-domain }}
+    secrets:
+      MATTERMOST_NOTIFY_HOOK_URL: ${{ secrets.MATTERMOST_NOTIFY_HOOK_URL }}
+
+  notify-discord:
+    if: ${{ needs.dynamic-variables.outputs.is-discord-hooked == 'true' }}
+    needs:
+      - dynamic-variables
+      - deploy
+    uses: ./.github/workflows/_notify-deployment.discord.reusable.yml
+    with:
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-full-slug }}
+      deployed-domain: ${{ needs.deploy.outputs.deployed-domain }}
+    secrets:
+      DISCORD_NOTIFY_HOOK_URL: ${{ secrets.DISCORD_NOTIFY_HOOK_URL }}

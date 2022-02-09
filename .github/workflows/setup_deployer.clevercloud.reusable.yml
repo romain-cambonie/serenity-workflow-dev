@@ -1,0 +1,13 @@
+name: Setup Deployer Clevercloud
+
+on:
+  workflow_dispatch:
+
+jobs:
+  login-for-repository-setup:
+    runs-on: ubuntu-latest
+    container:
+      image: clevercloud/clever-tools
+    steps:
+      - name: Login to get token
+        run: clever login

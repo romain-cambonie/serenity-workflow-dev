@@ -7,7 +7,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Retrieve the branch files
+        uses: actions/checkout@v2
 
       - name: Retrieve dependencies
         uses: actions/cache@v2
@@ -21,7 +22,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Retrieve the branch files
+        uses: actions/checkout@v2
 
       - name: Retrieve dependencies
         uses: actions/cache@v2

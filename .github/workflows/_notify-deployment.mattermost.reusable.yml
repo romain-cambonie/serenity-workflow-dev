@@ -1,4 +1,4 @@
-name: Reusable Static Mattermost deployment Notify Workflow
+name: Reusable Mattermost deployment Notify Workflow
 
 on:
   workflow_call:
@@ -9,6 +9,7 @@ on:
       deployed-domain:
         required: true
         type: string
+
     secrets:
       MATTERMOST_NOTIFY_HOOK_URL:
         required: true
@@ -17,6 +18,6 @@ jobs:
   mattermost-notify-instance-url:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify mattermost canal
+      - name: Notify mattermost hooked canal
         run: |
           curl --header "Content-Type:application/json" -d "{\"text\":\"Une nouvelle version pour: ${{ inputs.application-full-name }} est disponible.\n [Tester la démo](https://${{ inputs.deployed-domain }})  \"}" ${{ secrets.MATTERMOST_NOTIFY_HOOK_URL }}

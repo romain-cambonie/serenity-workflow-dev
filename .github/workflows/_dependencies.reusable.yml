@@ -11,7 +11,8 @@ jobs:
   dependencies:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Retrieve the branch files
+        uses: actions/checkout@v2
 
       - name: Setup node ${{ inputs.node-version }}
         uses: actions/setup-node@v2
