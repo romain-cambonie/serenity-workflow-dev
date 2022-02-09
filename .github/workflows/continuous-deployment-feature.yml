@@ -6,6 +6,11 @@ on:
     branches:
       - feature/*
 
+env:
+  application-name: 'my-app'
+  # Should be either 'personnal' or 'organisation'
+  deploymentOwnerType: 'personnal'
+
 jobs:
   dependencies:
     uses: ./.github/workflows/_dependencies.reusable.yml
@@ -29,7 +34,8 @@ jobs:
       - validation
     uses: ./.github/workflows/_deploy-node-application.clevercloud.reusable.yml
     with:
-      application-full-name: 'oklm-${GITHUB_REF##*/}'
+      application-full-name: ${{ format('{0}-${GITHUB_REF##*/}', env.application-name) }}
+      deploymentOwnerType: ${{ env.deploymentOwnerType }}
     secrets:
       CLEVER_ORG_ID: ${{ secrets.CLEVER_ORG_ID }}
       CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}

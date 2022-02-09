@@ -17,6 +17,6 @@ jobs:
   mattermost-notify-instance-url:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify mattermost canal
+      - name: Notify mattermost hooked canal
         run: |
           curl --header "Content-Type:application/json" -d "{\"text\":\"Une nouvelle version pour: ${{ inputs.application-full-name }} est disponible.\n [Tester la démo](https://${{ inputs.deployed-domain }})  \"}" ${{ secrets.MATTERMOST_NOTIFY_HOOK_URL }}

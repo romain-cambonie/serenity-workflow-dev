@@ -8,7 +8,9 @@ on:
 #    - cron: '58 6 * * 1,2,3,4,5'
 
 env:
-  app-name: 'oklm'
+  application-name: 'my-app'
+  # Should be either 'personnal' or 'organisation'
+  deploymentOwnerType: 'personnal'
 
 jobs:
   enumerate-feature-branches:
@@ -27,8 +29,16 @@ jobs:
       matrix:
         value: ${{ fromJSON(needs.enumerate-feature-branches.outputs.branches) }}
     steps:
-      - name: Link and start a clevercloud demo application
+      - name: Link and start a clevercloud demo application (ORGANISATION)
+        if: ${{ inputs.deploymentOwnerType == 'organisation' }}
         continue-on-error: true
         run: |
-          clever link ${{ format('{0}-{1}', env.app-name, matrix.value) }} --org ${{ secrets.CLEVER_ORG_ID }}
+          clever link ${{ format('{0}-{1}', env.application-name, matrix.value) }} --org ${{ secrets.CLEVER_ORG_ID }}
+          clever restart
+
+      - name: Link and start a clevercloud demo application (PERSONAL USE)
+        if: ${{ inputs.deploymentOwnerType == 'personnal' }}
+        continue-on-error: true
+        run: |
+          clever link ${{ format('{0}-{1}', env.application-name, matrix.value) }}
           clever restart
