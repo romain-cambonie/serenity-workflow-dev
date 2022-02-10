@@ -1,125 +1,48 @@
-# oklm
+# Serenity Ops
 
-"au calme": _Un code sain pour un dev serein._
+:warning: for a workflow to appear in your available workflows ({ YOUR_REPOSITORY_URL }/actions) a file with the same workflow name must be present on your default branch (usually master / main).
 
-> Hello !
->
-> Nous sommes un groupe de développeurs actuellement en mission chez [betagouv](https://beta.gouv.fr), et nous mettons notre énergie en commun pour identifier les pratiques utiles pour développer **sereinement** des produits **durables** (robustes et maintenables).
->
-> Tu trouveras ici, un chantier d'application réaliste en typescript/nodejs, mettant en oeuvres ces pratiques, ainsi que les discussions autour des différents choix que nous faisons.
->
-> N'hésite pas à rejoindre les discussions via une [issue](https://github.com/oklmdev/oklm/issues/new/choose) ou encore une [PR](https://github.com/oklmdev/oklm/compare) !
->
-> A très vite !
+Workflow files contents are however branch dependent.
 
----
+## Deployers Setup
 
-### Quelles pratiques pour être oklm ?
+### Clevercloud (~ 15 min)
+#### Prerequisites
+- Have a clevercloud account.
 
-- Découplage métier / infra
-  - _"Je change de lib sans toucher au code métier."_
-  - pour limiter notre dépendance à des libs tiers (API, base de données, ...)
-  - isoler le métier pour mieux le concevoir
-- Découplage des domaines métiers entre eux
-  - _"Je change les règles d'un contexte métier sans toucher aux autres."_
-  - séparer les responsabilités indépendantes pour mieux les concevoir
-- Découpler les données du modèle de données
-  - _"Je pousse un nouveau schéma de BDD en prod, sans avoir à concevoir une migration."_
-  - pour se sentir libre de changer de modèle de données, même avec un système en production
+#### tl;dr
+Set up the
+- CLEVER_TOKEN
+- CLEVER_SECRET
+- (Organisation) CLEVER_ORG_ID
 
-Mais aussi
+repository variables.
 
-- Ne pas être dépendant d'un framework
-  - les frameworks introduisent des patterns utiles mais au coût d'une inversion du contrôle (le framework appelle mon code, je ne peux pas le contourner)
-  - l'alternative proposée est d'introduire les patterns via des conventions, sans contraintes fortes (_ie_ sans API)
-- S'outiller pour améliorer l'expérience de développement
-  - intégration continue et déploiement continu (CI/CD)
-  - analyse de code (typage, linters, autoformattage, visualisation, ...)
-  - tests pour aider à la conception et aussi éviter les régressions
-  - éventuellement, un peu de génération de code (si boilerplate répétitif)
+#### Step-by-step
+Run the 'Setup Deployer Clevercloud' workflow (/actions)
 
-### Pourquoi adopter ces pratiques ?
+Go into the workflow run logs to find the url to the clevercloud console.  
+It should have the form :
+```
+https://console.clevercloud.com/cli-oauth?cli_version=XXX&cli_token=YYYY
+```
 
-- Livrer vite et souvent
-- Pouvoir être responsable de la prod sans perdre sa sérennité
-- Créer un produit qui sera facile à reprendre par les contributeurs futurs
-- Un outil pour toute l'équipe
-  - l'application répond aux besoins métier et en épouse les contours
-  - le développement comme une conversation entre toutes les parties prenantes
+Login manually to get your clever token and secrets.
 
-### Comment est-ce que je me servirais d'oklm ?
+Add the tokens to your repository secrets (/settings/secrets/actions) :
+- CLEVER_TOKEN=XXX
+- CLEVER_SECRET=YYY
 
-- Comme starter pour mon nouveau projet typescript/node
-- Pour avoir des exemples fonctionnels concrets de certaines pratiques et d'usage de certaines libs
-- Comme support de discussion
-  - partir d'un fork pour proposer un changement, une intégration, etc.
+If you deploy for an organisation and not personal use you also REQUIRE the following secret:
+- CLEVER_ORG_ID=orga_ZZZ
 
-### Oklm n'est pas...
+Found in https://console.clever-cloud.com/organisations/{{ ORG_ID }} on the top-right of your organisation overview.
 
-- une solution universelle et parfaite pour tous les projets
-  - des choix ont été fait selon l'opinion des auteurs
-- un démonstrateur de technos dernier cri
-- fini et n'est pas destiné à l'être
-  - mais nous visons que le "coeur" du code puisse être suffisamment stable pour être utilisé dans des situations réelles dans le futur.
+### Scalingo
+TBA
 
-# Utilisation
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/oklmdev/oklm/tree/master)
-
-## Prérequis
-
-[Node](https://nodejs.org/)  
-[Yarn](https://yarnpkg.com/)
-
-## Technos utilisées
-
-<details>
-<summary> Clicker pour ouvrir </summary>
-<br>
-
-### Languages & Frameworks
-
-- [TypeScript](https://www.typescriptlang.org/) is an open-source language which builds on JavaScript
-- [React](https://reactjs.org/) (mais ça pourrait être intéressant de donner des exemples de vue en Angular, Vue, Svelte, Vanilla, ...)
-
-### Tools
-
-#### Cli
-
-- [Jest](https://jestjs.io/) is a JavaScript Testing Framework
-- [Eslint](https://eslint.org/) with plugins :
-  - [typescript](https://github.com/typescript-eslint/typescript-eslint)
-  - [prettier](https://github.com/prettier/eslint-config-prettier)
-  - [jest](https://github.com/jest-community/eslint-plugin-jest)
-- [Prettier](https://prettier.io/)
-
-#### CI
-
-- [Github Actions](https://docs.github.com/en/actions)
-
-#### Deploiement
-
-Nous recommandons de déployer sur un [PaaS](https://fr.wikipedia.org/wiki/Platform_as_a_service).
-
-- [Clevercloud](https://www.clever-cloud.com/)
-- [Scalingo](https://www.scalingo.com/)
-
-- A venir: exemples Terraform, Docker, etc.
-
-</details>
-
-## Installation
-
-`yarn install`
-
-## Lancer en local
-
-`yarn run watch`
-
-## Licence
-
-Voir le fichier [LICENSE](./LICENSE) du dépot.
-
-## Notes
-
-[HackMD](https://hackmd.io/j6F14DDpTMG9-rEFCgc3tw)
+## Notifications :
+Available workflows
+DISCORD_NOTIFY_WEBHOOK_URL
+MATTERMOST_NOTIFY_WEBHOOK_URL
