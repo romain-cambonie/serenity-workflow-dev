@@ -24,7 +24,7 @@ jobs:
         run: clever link ${{ inputs.application-full-slug }} --org ${{ secrets.CLEVER_ORG_ID }}
 
       - name: Link the application (PERSONAL USE)
-        if: ${{ inputs.deployment-owner-type == 'personnal' }}
+        if: ${{ inputs.deployment-owner-type == 'personal' }}
         run: clever link ${{ inputs.application-full-slug }}
 
       - name: Delete the deployed application

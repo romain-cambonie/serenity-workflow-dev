@@ -9,8 +9,8 @@ on:
 
 env:
   application-name: 'my-app'
-  # Should be either 'personnal' or 'organisation'
-  deployment-owner-type: 'personnal'
+  # Should be either 'personal' or 'organisation'
+  deployment-owner-type: 'personal'
 
 jobs:
   enumerate-feature-branches:
@@ -37,7 +37,7 @@ jobs:
           clever restart
 
       - name: Link and start a clevercloud demo application (PERSONAL USE)
-        if: ${{ inputs.deployment-owner-type == 'personnal' }}
+        if: ${{ inputs.deployment-owner-type == 'personal' }}
         continue-on-error: true
         run: |
           clever link ${{ format('{0}-{1}', env.application-name, matrix.value) }}
