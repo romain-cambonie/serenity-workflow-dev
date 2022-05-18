@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve an extract build bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build-bundle
           path: .
@@ -60,7 +60,7 @@ jobs:
           git commit -m "Release bundle"
 
       - name: Upload release bundle as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: release-bundle-for-clevercloud
           path: ./*
@@ -77,7 +77,7 @@ jobs:
       deployed-domain: ${{ steps.deployed-domain.outputs.domain }}
     steps:
       - name: Retrieve release bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: release-bundle-for-clevercloud
           path: .
