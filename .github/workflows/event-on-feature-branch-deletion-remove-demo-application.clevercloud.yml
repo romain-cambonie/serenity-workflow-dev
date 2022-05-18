@@ -7,8 +7,8 @@ on:
 
 env:
   application-name: 'my-app'
-  # Should be either 'personnal' or 'organisation'
-  deployment-owner-type: 'personnal'
+  # Should be either 'personal' or 'organisation'
+  deployment-owner-type: 'personal'
 
 jobs:
   get-deleted-branch-ref:

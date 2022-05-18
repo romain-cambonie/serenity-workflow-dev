@@ -1,4 +1,8 @@
 name: CD-Feature/Fix on clevercloud
+# This assume you have the following scripts in the package.json
+#build
+#test (used in the reusable Validation Workflow)
+#lint (used in the reusable Validation Workflow)
 
 on:
   workflow_dispatch:
@@ -33,10 +37,10 @@ jobs:
           APPLICATION_SLUG=${{ env.application-name }}
           echo "::set-output name=value::$APPLICATION_SLUG-$BRANCH_SHORT_REF"
 
-      - name: Deployement Owner type ('personnal' | 'organisation')
+      - name: Deployement Owner type ('personal' | 'organisation')
         id: deployment-owner-type
         run: |
-          TYPE=${{ secrets.CLEVER_ORG_ID != '' && 'organisation' || 'personnal' }}
+          TYPE=${{ secrets.CLEVER_ORG_ID != '' && 'organisation' || 'personal' }}
           echo "::set-output name=value::$TYPE"
 
       - name: Has a mattermost webhook for notification been defined
