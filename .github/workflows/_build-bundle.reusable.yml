@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve the branch files
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Retrieve dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           key: node_modules-${{ hashFiles('yarn.lock') }}
           path: node_modules
@@ -25,7 +25,7 @@ jobs:
           yarn run build
 
       - name: Upload build bundle as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-bundle
           path: ${{ inputs.build-directory-path }}/*

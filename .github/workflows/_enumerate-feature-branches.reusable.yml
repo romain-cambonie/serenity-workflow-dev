@@ -14,7 +14,7 @@ jobs:
       branches: ${{ steps.enumerate-feature-branches.outputs.branches }}
     steps:
       - name: Retrieve all branches
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Enumerate all branches that match a 'feature/*' pattern

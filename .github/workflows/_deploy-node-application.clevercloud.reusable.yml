@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve project files for current branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Initialise local git repository for deployment (a clevercloud deployment is a push to their origin)
         run: |
@@ -41,7 +41,7 @@ jobs:
           git commit -m "Release bundle"
 
       - name: Upload release bundle as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: release-bundle-for-clevercloud
           path: ./*
@@ -58,7 +58,7 @@ jobs:
       deployed-domain: ${{ steps.deployed-domain.outputs.domain }}
     steps:
       - name: Retrieve release bundle
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: release-bundle-for-clevercloud
           path: .

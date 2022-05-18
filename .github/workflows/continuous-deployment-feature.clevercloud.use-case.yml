@@ -68,16 +68,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Retrieve the branch files
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Retrieve dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           key: node_modules-${{ hashFiles('yarn.lock') }}
           path: node_modules
 
       - name: Build
-        run: yarn run build
+        run: yarn build
 
   validation:
     needs: dependencies

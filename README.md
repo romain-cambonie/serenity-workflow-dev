@@ -5,7 +5,7 @@
 Serenity workflows aim to provide easy to use, understand and modify reusable github actions workflows for common ci/cd use cases.
 
 - Workflows DO NOT use marketplace actions or any dependencies except for github default actions.
-- Workflows are given as local file for ease-of-modification and adaptation to your needs.
+- Workflows are given as local files for ease-of-modification and adaptation to your needs.
 
 ## Table des matières
 
@@ -57,7 +57,6 @@ They are usually called by use-case workflows with inputs and may return several
 ##### Clevercloud specific
 - Create/Deploy a node application
 - Create/Deploy a static application
-- Build application bundle
 - Remove a deployed application
 
 ##### Deployment Notification hooks
@@ -101,4 +100,4 @@ Contributions are welcome ! Just submit a pull request with the files following 
 
 ## Licence
 
-Voir le fichier [LICENSE](./LICENSE.md) du dépôt.
+Voir le fichier [LICENSE](./LICENSE) du dépôt.
