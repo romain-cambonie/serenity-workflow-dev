@@ -89,9 +89,9 @@ jobs:
       - build
       - validation
     uses: ./.github/workflows/_deploy-node-application.scalingo.reusable.yml
-    with:
-      application-full-name: ${{ needs.dynamic-variables.outputs.application-full-slug }}
-      deployment-owner-type: ${{ needs.dynamic-variables.outputs.deployment-owner-type }}
+#    with:
+#      application-full-name: ${{ needs.dynamic-variables.outputs.application-full-slug }}
+#      deployment-owner-type: ${{ needs.dynamic-variables.outputs.deployment-owner-type }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
