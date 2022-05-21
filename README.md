@@ -92,6 +92,12 @@ repository variables.
 
 [Step-by-step setup](./docs/clevercloud/clevercloud.md)
 
+#### Scalingo
+Set up the 
+- SCALINGO-API-TOKEN
+
+repository variable  
+
 ## Contribution
 Contributions are welcome ! Just submit a pull request with the files following the naming convention.
 
