@@ -1,0 +1,110 @@
+name: Reusable NodeJS Application Scalingo Deployer Workflow
+
+on:
+  workflow_call:
+#    inputs:
+#      application-full-name:
+#        required: true
+#        type: string
+#      deployment-owner-type:
+#        required: true
+#        type: string
+
+#    outputs:
+#      deployed-domain:
+#        description: 'The scalingo instance url'
+#        value: ${{ jobs.deploy-to-scalingo.outputs.deployed-domain }}
+
+    secrets:
+      SCALINGO_API_TOKEN:
+        required: true
+
+jobs:
+#  release-for-scalingo:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Retrieve project files for current branch
+#        uses: actions/checkout@v3
+#
+#      - name: Initialise local git repository for deployment (a scalingo deployment is a push to their origin)
+#        run: |
+#          rm -rf .git
+#          git config --global init.defaultBranch master
+#          git config --global user.email dummy@email.fr
+#          git config --global user.name ScalingoDeployer
+#          git init .
+#          git add .
+#          git commit -m "Release bundle"
+#
+#      - name: Upload release bundle as artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: release-bundle-for-scalingo
+#          path: ./*
+
+  deploy-to-scalingo:
+    needs: release-for-scalingo
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+      env:
+        API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+#    outputs:
+#     deployed-domain: ${{ steps.deployed-domain.outputs.domain }}
+    steps:
+#      - name: Retrieve release bundle
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: release-bundle-for-scalingo
+#          path: .
+
+      - name: List deployed apps
+        run: scalingo apps
+#        if: ${{ inputs.deployment-owner-type == 'organisation' }}
+#        id: organisation-application-already-exist
+#        continue-on-error: true
+#        run: clever link ${{ inputs.application-full-name }} --org ${{ secrets.CLEVER_ORG_ID }}
+
+#      - name: If no pre-existing application create it, wait for availability and link to it (ORGANISATION)
+#        if: ${{ inputs.deployment-owner-type == 'organisation' && steps.organisation-application-already-exist.outcome == 'failure' }}
+#        run: |
+#          clever create --type node ${{ inputs.application-full-name }} --alias ${{ inputs.application-full-name }} --org ${{ secrets.CLEVER_ORG_ID }} --region par
+#          clever scale --flavor nano
+#          sleep 10
+#          clever link ${{ inputs.application-full-name }} --org ${{ secrets.CLEVER_ORG_ID }}
+#
+#      - name: Try linking to an existing application (PERSONAL USE)
+#        if: ${{ inputs.deployment-owner-type == 'personal' }}
+#        id: personal-application-already-exist
+#        continue-on-error: true
+#        run: clever link ${{ inputs.application-full-name }}
+#
+#      - name: If no pre-existing application create it, wait for availability and link to it (PERSONAL USE)
+#        if: ${{ inputs.deployment-owner-type == 'personal' && steps.personal-application-already-exist.outcome == 'failure' }}
+#        run: |
+#          clever create --type node ${{ inputs.application-full-name }} --alias ${{ inputs.application-full-name }} --region par
+#          clever scale --flavor nano
+#          sleep 10
+#          clever link ${{ inputs.application-full-name }}
+#
+#      - name: Setup environement variables
+#        if: ${{ steps.organisation-application-already-exist.outcome == 'failure' || steps.personal-application-already-exist.outcome == 'failure' }}
+#        run: clever env set NODE_ENV production
+#
+#
+#      # Pas de meilleur moyen pour l'instant : https://github.community/t/how-to-retry-a-failed-step-in-github-actions-workflow/125880
+#      - name: Deploy the linked application (attempt 1/2)
+#        timeout-minutes: 3
+#        continue-on-error: true
+#        id: deploy-attempt-1
+#        run: clever deploy --force
+#      - name: Deploy the linked application (attempt 2/2)
+#        timeout-minutes: 3
+#        if: steps.deploy-attempt-1.outcome=='failure'
+#        run: |
+#          clever cancel-deploy
+#          clever restart
+#
+#      - name: Retrieve the deployment url (without leading whitespaces)
+#        id: deployed-domain
+#        run: echo "::set-output name=domain::$(clever domain | xargs)"
