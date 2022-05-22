@@ -43,12 +43,10 @@ jobs:
 #          path: ./*
 
   deploy-to-scalingo:
-    needs: release-for-scalingo
+#    needs: release-for-scalingo
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
-      env:
-        API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 #    outputs:
 #     deployed-domain: ${{ steps.deployed-domain.outputs.domain }}
     steps:
@@ -58,8 +56,8 @@ jobs:
 #          name: release-bundle-for-scalingo
 #          path: .
 
-      - name: List deployed apps
-        run: scalingo apps
+      - name: Login
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 #        if: ${{ inputs.deployment-owner-type == 'organisation' }}
 #        id: organisation-application-already-exist
 #        continue-on-error: true
