@@ -4,13 +4,14 @@
     "build": "tsc",
     "lint": "echo Lint is not congigured",
     "prettier": "prettier --write src",
-    "start": "tsc && node ./dist/server.js",
+    "start": "node ./dist/server.js",
     "test": "echo No tests have been defined yet"
   },
   "version": "1.0.0",
   "contributors": [
     "Romain Cambonie <romain.cambonie@gmail.com> (https://github.com/romain-cambonie)"
   ],
+  "type": "module",
   "license": "MIT",
   "dependencies": {
     "@types/express": "^4.17.13",
