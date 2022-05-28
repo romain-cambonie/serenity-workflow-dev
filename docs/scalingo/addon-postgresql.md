@@ -5,4 +5,4 @@ Reference : [Official documentation](https://doc.scalingo.com/databases/postgres
 ## Plans and prices
 As of 2022-05-28
 
-![Addons ids and price](./scalingo-postgresql-plans.png)
+![Addons ids and price](../assets/scalingo-postgresql-plans.png)
