@@ -13,7 +13,6 @@ on:
 env:
   application-name: 'romain-cambonie-test'
   node-version: '16.15.0'
-  # More details available in the docs/scalingo/addon-postgresql.md file.
   addon-plan-postgresql: 'postgresql-sandbox'
 
 jobs:
@@ -43,7 +42,8 @@ jobs:
       - name: Scalingo postgresql addon plan
         id: addon-plan-postgresql
         run: |
-          echo "::set-output name=value::$(echo ${{ env.addon-plan-postgresql }})"          
+          POSTGRESQL_PLAN=$(echo ${{ env.addon-plan-postgresql }})
+          echo "::set-output name=value::$POSTGRESQL_PLAN"          
 
       - name: Has a mattermost webhook for notification been defined
         id: is-mattermost-hooked
@@ -100,11 +100,12 @@ jobs:
 
   additional-services:
     needs:
+      - dynamic-variables
       - deploy
     uses: ./.github/workflows/_db-postgresql.scalingo.reusable.yml
     with:
       application-full-name: ${{ needs.dynamic-variables.outputs.application-name }}
-      addons-plan-postgresql: ${{ needs.dynamic-variables.outputs.addon-plan-postgresql }}
+      addon-plan-postgresql : ${{ needs.dynamic-variables.outputs.addon-plan-postgresql }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 

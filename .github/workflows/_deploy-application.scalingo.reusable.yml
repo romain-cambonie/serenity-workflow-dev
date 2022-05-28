@@ -74,7 +74,7 @@ jobs:
 
       - name: Push to deploy
         run: |
-          git push ${{ inputs.application-enviroment-name }}
+          git push scalingo
 
   cleanup-deploy-keys:
     needs: deploy-to-target-environment
@@ -86,5 +86,5 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Remove the transient ssh-key from logged profile
-        run: scalingo keys-remove ${{ inputs.application-full-name }}-${{ inputs.application-enviroment-name }}
+        run: scalingo keys-remove ${{ inputs.application-full-name }}
         continue-on-error: true

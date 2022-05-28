@@ -7,7 +7,7 @@ on:
       application-full-name:
         required: true
         type: string
-      addons-plan-postgresql:
+      addon-plan-postgresql:
         required: true
         type: string
 
@@ -25,4 +25,4 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Create the application with its specific environment if it does not exist
-        run: scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addons-plan-postgresql }}
+        run: scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
