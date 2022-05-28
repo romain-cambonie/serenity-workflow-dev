@@ -1,0 +1,28 @@
+# This is a Work In Progress
+name: Reusable NodeJS Application Scalingo Deployer Workflow
+
+on:
+  workflow_call:
+    inputs:
+      application-base-name:
+        required: true
+        type: string
+      addons-plan-postgresql:
+        required: true
+        type: string
+
+    secrets:
+      SCALINGO_API_TOKEN:
+        required: true
+
+jobs:
+  create-app-and-environment:
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Create the application with its specific environment if it does not exist
+        run: scalingo --app ${{ inputs.application-base-name }} addons-add postgresql ${{ inputs.addons-plan-postgresql }}
