@@ -20,12 +20,11 @@
   
 
 ##### Required Environment variables 
-  - application-base-name (eg: 'my-awesome-app')
-  - application-environment-name (eg: 'staging' or 'feature-add-user-to-cart')
+  - application-full-name (eg: 'my-awesome-app')
 
 ###### About required variables
-- Your application base name must be unique
-- Your application base name cannot contain 'scalingo'
+- Your application full name must be unique
+- Your application full name cannot contain 'scalingo'
 - The app will be available at https://{YOUR_APP_NAME}.osc-fr1.scalingo.io/
 
 ##### Optionnal Environment variables

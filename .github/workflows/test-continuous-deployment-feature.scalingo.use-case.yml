@@ -21,7 +21,7 @@ jobs:
     outputs:
       node-version: ${{ steps.node-version.outputs.value }}
       application-name: ${{ steps.application-name.outputs.value }}
-      application-environment-slug: ${{ steps.application-environment-slug.outputs.value }}
+      addon-plan-postgresql: ${{ steps.addon-plan-postgresql.outputs.value }}
       deployment-owner-type: ${{ steps.deployment-owner-type.outputs.value }}
       is-mattermost-hooked: ${{ steps.is-mattermost-hooked.outputs.value }}
       is-discord-hooked: ${{ steps.is-discord-hooked.outputs.value }}
@@ -37,19 +37,13 @@ jobs:
         id: application-name
         run: |
           APPLICATION_NAME=${{ env.application-name }}
-          echo "::set-output name=value::$APPLICATION_NAME"
-
-      - name: Deployed application environment slug
-        id: application-environment-slug
-        run: |
           BRANCH_SHORT_REF=$(echo ${{ github.event.ref }} | cut -d'/' -f 4)
-          echo "::set-output name=value::$BRANCH_SHORT_REF"
+          echo "::set-output name=value::$APPLICATION_NAME-$BRANCH_SHORT_REF"
 
-#      - name: Deployement Owner type ('personal' | 'organisation')
-#        id: deployment-owner-type
-#        run: |
-#          TYPE=${{ secrets.CLEVER_ORG_ID != '' && 'organisation' || 'personal' }}
-#          echo "::set-output name=value::$TYPE"
+      - name: Scalingo postgresql addon plan
+        id: addon-plan-postgresql
+        run: |
+          echo "::set-output name=value::$(echo ${{ env.addon-plan-postgresql }})"          
 
       - name: Has a mattermost webhook for notification been defined
         id: is-mattermost-hooked
@@ -98,28 +92,28 @@ jobs:
       - validation
     uses: ./.github/workflows/_deploy-application.scalingo.reusable.yml
     with:
-      application-base-name: ${{ needs.dynamic-variables.outputs.application-name }}
-      application-enviroment-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-name }}
       scalingo-remote-domain-url: 'git@ssh.osc-fr1.scalingo.com'
       scalingo-ssh-host-domain: 'ssh.osc-fr1.scalingo.com'
-#     deployment-owner-type: ${{ needs.dynamic-variables.outputs.deployment-owner-type }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
-  services:
+  additional-services:
     needs:
       - deploy
-    uses: ./.github/workflows/_deploy-application.scalingo.reusable.yml
+    uses: ./.github/workflows/_db-postgresql.scalingo.reusable.yml
     with:
-      application-base-name: ${{ needs.dynamic-variables.outputs.application-name }}
-      application-enviroment-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}
-      addons-plan-postgresql: ${{ env.application-name }}
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      addons-plan-postgresql: ${{ needs.dynamic-variables.outputs.addon-plan-postgresql }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
   notify-mattermost:
     if: ${{ needs.dynamic-variables.outputs.is-mattermost-hooked == 'true' }}
     needs:
       - dynamic-variables
       - deploy
+      - additional-services
     uses: ./.github/workflows/_notify-deployment.mattermost.reusable.yml
     with:
       application-full-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}
@@ -132,6 +126,7 @@ jobs:
     needs:
       - dynamic-variables
       - deploy
+      - additional-services
     uses: ./.github/workflows/_notify-deployment.discord.reusable.yml
     with:
       application-full-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}

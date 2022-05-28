@@ -3,10 +3,7 @@ name: Reusable NodeJS Application Scalingo Deployer Workflow
 on:
   workflow_call:
     inputs:
-      application-base-name:
-        required: true
-        type: string
-      application-enviroment-name:
+      application-full-name:
         required: true
         type: string
       scalingo-remote-domain-url:
@@ -34,14 +31,14 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Create the application with its specific environment if it does not exist
-        run: scalingo create ${{ inputs.application-base-name }} --remote ${{ inputs.application-enviroment-name }}
+        run: scalingo create ${{ inputs.application-full-name }}
         continue-on-error: true
 
       - name: Generate transient ssh-keys then add the public key to the logged account for deployment
         run: |
           mkdir -p /home/.ssh
           ssh-keygen -q -t rsa -N '' -f /home/.ssh/id_rsa
-          scalingo keys-add ${{ inputs.application-base-name }}-${{ inputs.application-enviroment-name }} /home/.ssh/id_rsa.pub
+          scalingo keys-add ${{ inputs.application-full-name }}-${{ inputs.application-enviroment-name }} /home/.ssh/id_rsa.pub
 
       - name: Set the generate ssh private key as an output, key value will masked in logs, handling the set-output truncate multiline string behaviours (ref:https://github.community/t/set-output-truncates-multiline-strings/16852)
         id: deployer-private-ssh-key
@@ -50,7 +47,6 @@ jobs:
           PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_MULTILINE//'%'/'%25'}"
           PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_SINGLELINE//$'\n'/'%0A'}"
           PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_SINGLELINE//$'\r'/'%0D'}"
-          echo "::add-mask::$PRIVATE_KEY_AS_SINGLELINE"
           echo "::set-output name=private-key::$PRIVATE_KEY_AS_SINGLELINE"
 
   deploy-to-target-environment:
@@ -67,7 +63,7 @@ jobs:
           git config --global user.name ScalingoDeployer
           git init .
           git add .
-          git remote add ${{ inputs.application-enviroment-name }} ${{ inputs.scalingo-remote-domain-url }}:${{ inputs.application-base-name }}.git
+          git remote add ${{ inputs.application-enviroment-name }} ${{ inputs.scalingo-remote-domain-url }}:${{ inputs.application-full-name }}.git
           git commit -m "Release bundle"
 
       - name: Set up ssh authentification to scalingo by setting the private key and known_hosts file
@@ -90,5 +86,5 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Remove the transient ssh-key from logged profile
-        run: scalingo keys-remove ${{ inputs.application-base-name }}-${{ inputs.application-enviroment-name }}
+        run: scalingo keys-remove ${{ inputs.application-full-name }}-${{ inputs.application-enviroment-name }}
         continue-on-error: true

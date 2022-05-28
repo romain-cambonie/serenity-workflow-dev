@@ -7,6 +7,9 @@ Serenity workflows aim to provide easy to use, understand and modify reusable gi
 - Workflows DO NOT use marketplace actions or any dependencies except for github default actions.
 - Workflows are given as local files for ease-of-modification and adaptation to your needs.
 
+## Known Issues
+- Hiding the SSH key log output with add-mask breaks the _deploy-application.scalingo.reusable workflow.
+
 ## Table des matières
 
 - 🪧 [About](#about)
@@ -100,6 +103,9 @@ Contributions are welcome ! Just submit a pull request with the files following 
 
 ## Documentation
 [GitHub Actions documentation](https://docs.github.com/en/actions)
+
+## Troubleshooting, tips and tricks
+[I cannot set my workflow env variables as reusable a workflow input](./docs/github-actions-tips.md)
 
 ## Licence
 
