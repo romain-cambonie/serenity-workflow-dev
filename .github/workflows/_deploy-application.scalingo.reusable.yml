@@ -63,7 +63,7 @@ jobs:
           git config --global user.name ScalingoDeployer
           git init .
           git add .
-          git remote add ${{ inputs.application-enviroment-name }} ${{ inputs.scalingo-remote-domain-url }}:${{ inputs.application-full-name }}.git
+          git remote add scalingo ${{ inputs.scalingo-remote-domain-url }}:${{ inputs.application-full-name }}.git
           git commit -m "Release bundle"
 
       - name: Set up ssh authentification to scalingo by setting the private key and known_hosts file
