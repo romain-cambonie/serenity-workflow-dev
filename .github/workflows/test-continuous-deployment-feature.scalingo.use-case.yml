@@ -13,6 +13,8 @@ on:
 env:
   application-name: 'romain-cambonie-test'
   node-version: '16.15.0'
+  # More details available in the docs/scalingo/addon-postgresql.md file.
+  addon-plan-postgresql: 'postgresql-sandbox'
 
 jobs:
   dynamic-variables:
@@ -103,6 +105,15 @@ jobs:
 #     deployment-owner-type: ${{ needs.dynamic-variables.outputs.deployment-owner-type }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
+  services:
+    needs:
+      - deploy
+    uses: ./.github/workflows/_deploy-application.scalingo.reusable.yml
+    with:
+      application-base-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      application-enviroment-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}
+      addons-plan-postgresql: ${{ env.application-name }}
 
   notify-mattermost:
     if: ${{ needs.dynamic-variables.outputs.is-mattermost-hooked == 'true' }}
