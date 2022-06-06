@@ -17,17 +17,16 @@ on:
       SCALINGO_API_TOKEN:
         required: true
 
+
 jobs:
   addon-postgresql:
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
+
     steps:
       - name: Retrieve the branch files
         uses: actions/checkout@v3
-
-      - name: Retrieve the branch files
-        run: ls -la
 
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
@@ -36,11 +35,29 @@ jobs:
         continue-on-error: true
         run: scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
 
-      - name: Get the POSTGRESQL connexion string
-        run: scalingo --app ${{ inputs.application-full-name }} env
+#      - name: Restore from dump
+#        run: scalingo --app ${{ inputs.application-full-name }} --file ./src/dump.sql run bash -c 'dbclient-fetcher psql &&
+#
+#        pg_restore --clean --if-exists --no-owner --no-privileges --no-comments --dbname $DATABASE_URL --file /tmp/uploads/dump.sql'
+
+#      - name: Setup the ssh tunnel
+#        run: scalingo --app ${{ inputs.application-full-name }} db-tunnel DATABASE_URL
+
+
+#  set-production-database-url-as-repository-secret:
+#    runs-on: ubuntu-latest
+#    container:
+#        image: rcambonie/scalingo-cli
+#
+#    steps:
+#      - name: Setup the SCALINGO_POSTGRESQL_URL as repository secret
+#        run: |
+#          $(scalingo --app romain-cambonie-test-postgresql-addon env | grep SCALINGO_POSTGRESQL_URL)
+#          'gh api --method PUT -H "Accept: application/vnd.github.v3+json" /repos/OWNER/REPO/actions/secrets/SECRET_NAME -f encrypted_value='c2VjcmV0' -f key_id='012345678912345678''
 
 #      - name: Setup the ssh tunnel
 #        run: scalingo --app ${{ inputs.application-full-name }} db-tunnel SCALINGO_POSTGRESQL_URL
+
 #      - name: Restore data from dump
 #        run: scalingo --app ${{ inputs.application-full-name }} run bash
 
