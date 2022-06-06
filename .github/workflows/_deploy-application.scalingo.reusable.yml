@@ -37,7 +37,7 @@ jobs:
         run: |
           mkdir -p /home/.ssh
           ssh-keygen -q -t rsa -N '' -f /home/.ssh/id_rsa
-          scalingo keys-add ${{ inputs.application-full-name }}-${{ inputs.application-enviroment-name }} /home/.ssh/id_rsa.pub
+          scalingo keys-add ${{ inputs.application-full-name }} /home/.ssh/id_rsa.pub
 
       - name: Set the generate ssh private key as an output, key value will masked in logs, handling the set-output truncate multiline string behaviours (ref:https://github.community/t/set-output-truncates-multiline-strings/16852)
         id: deployer-private-ssh-key
