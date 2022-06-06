@@ -12,7 +12,7 @@ on:
 #      - master
 
 env:
-  application-name: 'romain-cambonie-test-test-production'
+  application-name: 'romain-cambonie-test-production'
   node-version: '16.15.0'
   addon-plan-postgresql: 'postgresql-sandbox'
 
@@ -37,7 +37,7 @@ jobs:
         id: application-name
         run: |
           APPLICATION_NAME=${{ env.application-name }}
-          echo "::set-output name=value::$APPLICATION_NAME-$BRANCH_SHORT_REF"
+          echo "::set-output name=value::$APPLICATION_NAME"
 
       - name: Scalingo postgresql addon plan
         id: addon-plan-postgresql
