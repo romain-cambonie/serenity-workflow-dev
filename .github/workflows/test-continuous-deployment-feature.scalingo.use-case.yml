@@ -1,4 +1,4 @@
-name: CD-Feature/Fix on scalingo
+name: CD-Production setup on scalingo
 # This assume you have the following scripts in the package.json
 #build
 #test (used in the reusable Validation Workflow)

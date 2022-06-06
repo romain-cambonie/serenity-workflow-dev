@@ -7,6 +7,8 @@ on:
       application-full-name:
         required: true
         type: string
+
+      #If using extentions => PostGIS extension requires at least a “Starter 512M” plan to work. (ref : https://doc.scalingo.com/databases/postgresql/extensions)
       addon-plan-postgresql:
         required: true
         type: string
@@ -21,8 +23,26 @@ jobs:
     container:
       image: rcambonie/scalingo-cli
     steps:
+      - name: Retrieve the branch files
+        uses: actions/checkout@v3
+
+      - name: Retrieve the branch files
+        run: ls -la
+
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: Create the application with its specific environment if it does not exist
+      - name: Add the postgresql addon
+        continue-on-error: true
         run: scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
+
+      - name: Get the POSTGRESQL connexion string
+        run: scalingo --app ${{ inputs.application-full-name }} env
+
+#      - name: Setup the ssh tunnel
+#        run: scalingo --app ${{ inputs.application-full-name }} db-tunnel SCALINGO_POSTGRESQL_URL
+#      - name: Restore data from dump
+#        run: scalingo --app ${{ inputs.application-full-name }} run bash
+
+
+
