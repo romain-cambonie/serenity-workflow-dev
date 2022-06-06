@@ -1,5 +1,5 @@
 # This is a Work In Progress
-name: CD-Feature application on scalingo
+name: CD-Production application on scalingo
 # This assume you have the following scripts in the package.json
 #build
 #test (used in the reusable Validation Workflow)
