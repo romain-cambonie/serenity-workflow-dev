@@ -34,10 +34,8 @@ jobs:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      #TODO Check if addon exist for better addon management
       - name: Add the postgresql addon
-        continue-on-error: true
-        run: scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
+        run: if (( $(scalingo -app ${{ inputs.application-full-name }} | grep -c PostgreSQL) == 0 )); then scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}; else echo 'addon exists already'; fi
 
   restore-db-from-reference-dump:
     name: Dump and restore the production database to the feature app

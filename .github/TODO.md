@@ -1,5 +1,5 @@
 - scalingo:
-  - feature apps lifecycle management
+  - feature apps lifecycle management (echo APP_NAME | scalingo -a APP_NAME destroy)
   - front application example use case
  
 - general:
