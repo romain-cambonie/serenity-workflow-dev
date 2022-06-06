@@ -1,5 +1,5 @@
 # This is a Work In Progress
-name: Reusable NodeJS Application Scalingo Deployer Workflow
+name: Reusable Scalingo Postgresql Addon Workflow
 
 on:
   workflow_call:
@@ -13,6 +13,11 @@ on:
         required: true
         type: string
 
+      reference-application-name:
+        required: false
+        type: string
+
+
     secrets:
       SCALINGO_API_TOKEN:
         required: true
@@ -20,46 +25,42 @@ on:
 
 jobs:
   addon-postgresql:
+    name: Add the postgresql addon if not present
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
 
     steps:
-      - name: Retrieve the branch files
-        uses: actions/checkout@v3
-
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
+      #TODO Check if addon exist for better addon management
       - name: Add the postgresql addon
         continue-on-error: true
         run: scalingo --app ${{ inputs.application-full-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
 
-#      - name: Restore from dump
-#        run: scalingo --app ${{ inputs.application-full-name }} --file ./src/dump.sql run bash -c 'dbclient-fetcher psql &&
-#
-#        pg_restore --clean --if-exists --no-owner --no-privileges --no-comments --dbname $DATABASE_URL --file /tmp/uploads/dump.sql'
+  restore-db-from-reference-dump:
+    name: Dump and restore the production database to the feature app
+    if: ${{ inputs.application-full-name != inputs.reference-application-name }}
+    runs-on: ubuntu-latest
+    needs:
+      - addon-postgresql
+    container:
+      image: rcambonie/scalingo-cli
 
-#      - name: Setup the ssh tunnel
-#        run: scalingo --app ${{ inputs.application-full-name }} db-tunnel DATABASE_URL
+    steps:
+      - name: Save the feature app database url string
+        id: feature-app-database-url
+        run : |
+          TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-full-name }} env | grep SCALINGO_POSTGRESQL_URL)
+          TARGET_DATABASE_URL=${TARGET_URL//SCALINGO_POSTGRESQL_URL=/}
+            echo "::set-output name=target-database-url::$TARGET_DATABASE_URL"
 
-
-#  set-production-database-url-as-repository-secret:
-#    runs-on: ubuntu-latest
-#    container:
-#        image: rcambonie/scalingo-cli
-#
-#    steps:
-#      - name: Setup the SCALINGO_POSTGRESQL_URL as repository secret
-#        run: |
-#          $(scalingo --app romain-cambonie-test-postgresql-addon env | grep SCALINGO_POSTGRESQL_URL)
-#          'gh api --method PUT -H "Accept: application/vnd.github.v3+json" /repos/OWNER/REPO/actions/secrets/SECRET_NAME -f encrypted_value='c2VjcmV0' -f key_id='012345678912345678''
-
-#      - name: Setup the ssh tunnel
-#        run: scalingo --app ${{ inputs.application-full-name }} db-tunnel SCALINGO_POSTGRESQL_URL
-
-#      - name: Restore data from dump
-#        run: scalingo --app ${{ inputs.application-full-name }} run bash
+      #TODO Add a transformation script (anonymisation ?) between dump and restore
+      - name: Restore from prod dump
+        run: scalingo --app ${{ inputs.reference-application-name }} run bash -c "dbclient-fetcher psql && \
+         pg_dump --clean --if-exists --format c --no-owner --no-privileges --no-comments --exclude-schema 'information_schema' --exclude-schema '^pg_*' --dbname $DATABASE_URL --file dump.pgsql && \
+         pg_restore --clean --if-exists --no-owner --no-privileges --no-comments --dbname ${{ steps.feature-app-database-url.outputs.target-database-url }} --file dump.pgsql"
 
 
 

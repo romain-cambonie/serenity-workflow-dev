@@ -7,37 +7,20 @@ As of 2022-05-28
 
 ![Addons ids and price](../assets/scalingo-postgresql-plans.png)
 
-Reflexion sur comment faire:
+Reflexion sur comment faire en mode user friendly:
 1er déploiement / migration de db de la production 
 - Appeller un script de migration sur l'instance ? 
 - Adminer ?
 - ssh restore d'un dump
+- one-liner avec la cli
 
 Déploiement par features branches
-- soit mig et empty db :/
 
-- fixtures (lourd à maintenir)
-
-- tunnel entre prod et l'instance 
-  - Nécessite de setup la var de db de prod dans le repos
-    - https://docs.github.com/en/rest/actions/secrets#create-or-update-a-repository-secret
-      - secret encodé par lib sodium
-        - nouveau container cli libsodium (et ou avec la gh api) ? / Pb de sécu ? : Difficile à découpler sur la ci
-    - manuellement :puke:
-    - 
-- dump / restore
-  - on se connecte à la prod en one-off
-  - on dump
-  - on execute un one-off de l'autre application avec le dump en param
-  - on restore
-  - ...
-  - profit ?
-  - pb: ne marche pas pour les archives > 100Mo
-
-test :
-démarrer docker-cli avec le ficher => volume 
-démarrer scalingo one-off avec le dump 
-install pgsql 
-restore en donnant l'url en param
+# TODO
+tuto local for initial prod with a dump bigger than 100M
+get PROD_DB_URL avec le container scalingo cli
+pg_restore --clean --if-exists --no-owner --no-privileges --no-comments --dbname PROD_DB_URL --file dump.pgsql
 
 
+References used:
+https://doc.scalingo.com/databases/postgresql/dump-restore

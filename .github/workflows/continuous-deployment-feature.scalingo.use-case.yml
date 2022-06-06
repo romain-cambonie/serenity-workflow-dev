@@ -1,4 +1,5 @@
-name: CD-Production setup on scalingo
+# This is a Work In Progress
+name: CD-Feature application on scalingo
 # This assume you have the following scripts in the package.json
 #build
 #test (used in the reusable Validation Workflow)
@@ -12,6 +13,7 @@ on:
 
 env:
   application-name: 'romain-cambonie-test'
+  reference-application-name: 'romain-cambonie-test-production'
   node-version: '16.15.0'
   addon-plan-postgresql: 'postgresql-sandbox'
 
@@ -20,6 +22,7 @@ jobs:
     outputs:
       node-version: ${{ steps.node-version.outputs.value }}
       application-name: ${{ steps.application-name.outputs.value }}
+      reference-application-name: ${{ steps.reference-application-name.outputs.value }}
       addon-plan-postgresql: ${{ steps.addon-plan-postgresql.outputs.value }}
       deployment-owner-type: ${{ steps.deployment-owner-type.outputs.value }}
       is-mattermost-hooked: ${{ steps.is-mattermost-hooked.outputs.value }}
@@ -38,6 +41,12 @@ jobs:
           APPLICATION_NAME=${{ env.application-name }}
           BRANCH_SHORT_REF=$(echo ${{ github.event.ref }} | cut -d'/' -f 4)
           echo "::set-output name=value::$APPLICATION_NAME-$BRANCH_SHORT_REF"
+
+      - name: Reference application (to copy config / db from)
+        id: reference-application-name
+        run: |
+          REFERENCE_APPLICATION_NAME=${{ env.reference-application-name }}
+          echo "::set-output name=value::$REFERENCE_APPLICATION_NAME"
 
       - name: Scalingo postgresql addon plan
         id: addon-plan-postgresql
@@ -105,6 +114,7 @@ jobs:
     uses: ./.github/workflows/_db-postgresql.scalingo.reusable.yml
     with:
       application-full-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      reference-application-name: ${{ needs.dynamic-variables.outputs.reference-application-name }}
       addon-plan-postgresql : ${{ needs.dynamic-variables.outputs.addon-plan-postgresql }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
