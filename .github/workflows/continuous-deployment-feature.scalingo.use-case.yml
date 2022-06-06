@@ -66,6 +66,12 @@ jobs:
           IS_HOOKED=${{ secrets.DISCORD_NOTIFY_HOOK_URL != '' }}
           echo "::set-output name=value::$IS_HOOKED"
 
+      - name: Deployed domain url
+        id: deployed-domain
+        run: |
+          DEPLOYED_DOMAIN=${{ steps.application-name.outputs.value }}.osc-fr1.scalingo.io
+          echo "::set-output name=value::$DEPLOYED_DOMAIN"
+
 
   dependencies:
     needs:
@@ -140,7 +146,8 @@ jobs:
       - additional-services
     uses: ./.github/workflows/_notify-deployment.discord.reusable.yml
     with:
-      application-full-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}
-      deployed-domain: ${{ needs.deploy.outputs.deployed-domain }}
+      deployer-name: "Scalingo Deployer"
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      deployed-domain: ${{ needs.dynamic-variables.outputs.deployed-domain }}
     secrets:
       DISCORD_NOTIFY_HOOK_URL: ${{ secrets.DISCORD_NOTIFY_HOOK_URL }}

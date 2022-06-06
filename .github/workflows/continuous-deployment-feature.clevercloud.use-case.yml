@@ -116,6 +116,7 @@ jobs:
       - deploy
     uses: ./.github/workflows/_notify-deployment.discord.reusable.yml
     with:
+      deployer-name: "Clevercloud Deployer"
       application-full-name: ${{ needs.dynamic-variables.outputs.application-full-slug }}
       deployed-domain: ${{ needs.deploy.outputs.deployed-domain }}
     secrets:

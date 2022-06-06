@@ -9,6 +9,9 @@ on:
       deployed-domain:
         required: true
         type: string
+      deployer-name:
+        required: true
+        type: string
 
     secrets:
       DISCORD_NOTIFY_HOOK_URL:
@@ -21,4 +24,4 @@ jobs:
       - name: Notify discord hooked canal
         run: |
           echo ${{ inputs.application-full-name }}
-          curl --header "Content-Type:application/json" -d "{\"username\":\"Clevercloud deployer\", \"content\":\"Une nouvelle version pour ${{ inputs.application-full-name }} est disponible.\n [Tester la démo](https://${{ inputs.deployed-domain }})  \"}" ${{ secrets.DISCORD_NOTIFY_HOOK_URL }}
+          curl --header "Content-Type:application/json" -d "{\"username\":\"${{ inputs.deployer-name }}\", \"content\":\"Une nouvelle version pour ${{ inputs.application-full-name }} est disponible.\n [Tester la démo](https://${{ inputs.deployed-domain }})  \"}" ${{ secrets.DISCORD_NOTIFY_HOOK_URL }}

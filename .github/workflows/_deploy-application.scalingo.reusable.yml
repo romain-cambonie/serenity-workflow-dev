@@ -31,8 +31,7 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Create the application with its specific environment if it does not exist
-        run: scalingo create ${{ inputs.application-full-name }}
-        continue-on-error: true
+        run: if (( $(scalingo apps | grep -c ${{ inputs.application-full-name }}) == 0 )); then scalingo create ${{ inputs.application-full-name }}; else echo 'app exists already'; fi
 
       - name: Generate transient ssh-keys then add the public key to the logged account for deployment
         run: |

@@ -25,6 +25,8 @@ jobs:
       addon-plan-postgresql: ${{ steps.addon-plan-postgresql.outputs.value }}
       deployment-owner-type: ${{ steps.deployment-owner-type.outputs.value }}
       is-discord-hooked: ${{ steps.is-discord-hooked.outputs.value }}
+      deployed-domain: ${{ steps.deployed-domain.outputs.value }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Node version from env variable
@@ -50,6 +52,12 @@ jobs:
         run: |
           IS_HOOKED=${{ secrets.DISCORD_NOTIFY_HOOK_URL != '' }}
           echo "::set-output name=value::$IS_HOOKED"
+
+      - name: Deployed domain url
+        id: deployed-domain
+        run: |
+          DEPLOYED_DOMAIN=${{ env.application-name }}.osc-fr1.scalingo.io
+          echo "::set-output name=value::$DEPLOYED_DOMAIN"
 
 
   dependencies:
@@ -112,7 +120,8 @@ jobs:
       - additional-services
     uses: ./.github/workflows/_notify-deployment.discord.reusable.yml
     with:
-      application-full-name: ${{ needs.dynamic-variables.outputs.application-environment-slug }}
-      deployed-domain: ${{ needs.deploy.outputs.deployed-domain }}
+      deployer-name: "Scalingo Deployer"
+      application-full-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      deployed-domain: ${{ needs.dynamic-variables.outputs.deployed-domain }}
     secrets:
       DISCORD_NOTIFY_HOOK_URL: ${{ secrets.DISCORD_NOTIFY_HOOK_URL }}
