@@ -74,7 +74,7 @@ jobs:
 
       - name: Push to deploy
         run: |
-          git push scalingo
+          git push scalingo -f
 
   cleanup-deploy-keys:
     needs: deploy-to-target-environment

@@ -3,6 +3,8 @@
 #### Prerequisites
 - Have a scalingo account
 
+
+
 #### PSA
 - If you are on a free trial you have only ONE available application, thus you need to delete it manually before redeploying
 

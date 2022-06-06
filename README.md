@@ -62,6 +62,10 @@ They are usually called by use-case workflows with inputs and may return several
 - Create/Deploy a static application
 - Remove a deployed application
 
+##### Scalingo specific
+- Create/Deploy a node application
+- Create a feature application with a copy of the database of a reference application
+
 ##### Deployment Notification hooks
 - Discord
 - Mattermost
@@ -97,6 +101,7 @@ repository variables.
 
 #### Scalingo
 [Step-by-step setup](./docs/scalingo/scalingo.md)
+[Postgresql addon workflow](./docs/scalingo/addon-postgresql.md)
 
 ## Contribution
 Contributions are welcome ! Just submit a pull request with the files following the naming convention.
