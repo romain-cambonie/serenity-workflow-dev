@@ -7,12 +7,12 @@ on:
   workflow_dispatch:
 
 env:
-  application-name: ${{ secrets.APPLICATION_NAME }}
+  application-name: 'romain-cambonie-test'
 
 jobs:
   dynamic-variables:
     outputs:
-      application-name: ${{ steps.application-name.outputs.value }}
+      application-name-with-ref: ${{ steps.application-name.outputs.value }}
     runs-on: ubuntu-latest
     steps:
       - name: Application name from env variable
@@ -36,6 +36,6 @@ jobs:
       - get-deleted-branch-ref
     uses: ./.github/workflows/_destroy-application.scalingo.reusable.yml
     with:
-      application-alias: ${{ format('{0}-{1}', needs.dynamic-variables.outputs.application-name, needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
+      application-alias: ${{ needs.dynamic-variables.outputs.application-name-with-ref }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
