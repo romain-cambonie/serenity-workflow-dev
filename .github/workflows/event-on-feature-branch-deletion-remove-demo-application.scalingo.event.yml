@@ -15,11 +15,11 @@ jobs:
       application-name: ${{ steps.application-name.outputs.value }}
     runs-on: ubuntu-latest
     steps:
-      - name: Node version from env variable
-        id: node-version
+      - name: Application name from env variable
+        id: application-name
         run: |
-          NODE_VERSION=${{ format('{0}-{1}', env.application-name, needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
-          echo "::set-output name=value::$NODE_VERSION"
+          APPLICATION_NAME=${{ format('{0}-{1}', env.application-name, needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
+          echo "::set-output name=value::APPLICATION_NAME"
 
   get-deleted-branch-ref:
     runs-on: ubuntu-latest
