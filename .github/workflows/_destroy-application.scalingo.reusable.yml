@@ -31,10 +31,8 @@ jobs:
         id: delete-app
         run: |
           APP_NAME=${{ inputs.application-alias }}
+          echo $APP_NAME
           set +e
           APP_EXIST=$(scalingo apps | grep -c $APP_NAME)
-          echo $APP_EXIST
           set -e
-          STATUS=$(if [[ $APP_EXIST -eq 1 ]]; then scalingo -a $APP_NAME destroy --force); else echo 'App not found'; fi)
-          echo $STATUS
-          echo "::set-output name=private-key::$STATUS"
+          if [[ $APP_EXIST -eq 1 ]]; then scalingo -a $APP_NAME destroy --force); else echo 'App not found'; fi
