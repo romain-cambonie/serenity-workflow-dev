@@ -1,9 +1,9 @@
-name: Destroy clevercloud demo application on feature branch deletion
+name: Destroy clevercloud application
 
 on:
   workflow_call:
     inputs:
-      application-full-slug:
+      application-alias:
         required: true
         type: string
       deployment-owner-type:
@@ -21,11 +21,11 @@ jobs:
     steps:
       - name: Link the application (ORGANISATION)
         if: ${{ inputs.deployment-owner-type == 'organisation' }}
-        run: clever link ${{ inputs.application-full-slug }} --org ${{ secrets.CLEVER_ORG_ID }}
+        run: clever link ${{ inputs.application-alias }} --org ${{ secrets.CLEVER_ORG_ID }}
 
       - name: Link the application (PERSONAL USE)
         if: ${{ inputs.deployment-owner-type == 'personal' }}
-        run: clever link ${{ inputs.application-full-slug }}
+        run: clever link ${{ inputs.application-alias }}
 
       - name: Delete the deployed application
-        run: clever delete --alias ${{ inputs.application-full-slug }} --yes
+        run: clever delete --alias ${{ inputs.application-alias }} --yes

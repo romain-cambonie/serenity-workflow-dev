@@ -25,5 +25,5 @@ jobs:
       - get-deleted-branch-ref
     uses: ./.github/workflows/_remove-application.clevercloud.reusable.yml
     with:
-      application-full-slug: ${{ format('{0}-{1}', env.application-name, needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
+      application-alias: ${{ format('{0}-{1}', env.application-name, needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
       deployment-owner-type: ${{ env.deployment-owner-type }}

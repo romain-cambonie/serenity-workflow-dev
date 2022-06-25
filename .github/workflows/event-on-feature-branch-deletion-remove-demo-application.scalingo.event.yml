@@ -1,0 +1,14 @@
+name: Destroy scalingo application on feature/* branch deletion
+
+on:
+  delete:
+    branches:
+      - feature/*
+
+jobs:
+  placeholder-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder step
+        id: deleted-branch-ref
+        run: echo "placeholder"
