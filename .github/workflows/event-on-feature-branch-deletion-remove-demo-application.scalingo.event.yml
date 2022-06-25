@@ -1,14 +1,26 @@
 name: Destroy scalingo application on feature/* branch deletion
 
 on:
+  workflow_dispatch:
   delete:
     branches:
       - feature/*
 
 jobs:
-  placeholder-job:
+  get-deleted-branch-ref:
     runs-on: ubuntu-latest
+    outputs:
+      deleted-branch-ref: ${{ steps.deleted-branch-ref.outputs.branch-ref }}
     steps:
-      - name: Placeholder step
+      - name: Get the deleted branch reference without the 'feature/' prefix
         id: deleted-branch-ref
-        run: echo "placeholder"
+        run: echo "::set-output name=branch-ref::$(echo ${{ github.event.ref }} | cut -d'/' -f 2)"
+
+  destroy-deployed-application:
+    needs:
+      - get-deleted-branch-ref
+    uses: ./.github/workflows/_destroy-application.scalingo.reusable.yml
+    with:
+      application-alias: ${{ format('{0}-{1}', env.application-name, needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}

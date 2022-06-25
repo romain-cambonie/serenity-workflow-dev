@@ -1,0 +1,38 @@
+name: Destroy scalingo application
+
+on:
+  workflow_call:
+    inputs:
+      application-alias:
+        required: true
+        type: string
+
+    outputs:
+      status:
+        description: 'Status of the deletion tentative'
+        value: ${{ jobs.destroy-deployed-application.outputs.status }}
+
+    secrets:
+      SCALINGO_API_TOKEN:
+        required: true
+
+jobs:
+  destroy-deployed-application:
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+    outputs:
+      status: ${{ steps.delete-app.outputs.status }}
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Destroy the application if it exist
+        id: delete-app
+        run: |
+          APP_NAME=${{ inputs.application-alias }}
+          set +e
+          APP_EXIST=$(scalingo apps | grep -c APP_NAME)
+          set -e
+          STATUS=$(if [[ $APP_EXIST -eq 1 ]]; then (echo APP_NAME | scalingo -a APP_NAME destroy); else echo 'App not found'; fi)
+          echo "::set-output name=private-key::$STATUS"

@@ -60,7 +60,7 @@ They are usually called by use-case workflows with inputs and may return several
 ##### Clevercloud specific
 - Create/Deploy a node application
 - Create/Deploy a static application
-- Remove a deployed application
+- Destroy a deployed application
 
 ##### Scalingo specific
 - Create/Deploy a node application

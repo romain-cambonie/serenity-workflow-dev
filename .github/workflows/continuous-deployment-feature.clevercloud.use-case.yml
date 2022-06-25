@@ -6,9 +6,9 @@ name: CD-Feature/Fix on clevercloud
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/*
+#  push:
+#    branches:
+#      - feature/*
 
 env:
   application-name: 'my-app'

@@ -42,3 +42,24 @@ jobs:
         run: |
           clever link ${{ format('{0}-{1}', env.application-name, matrix.value) }}
           clever stop
+
+  destroy-deployed-application:
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+    strategy:
+      matrix:
+        value: ${{ fromJSON(needs.enumerate-feature-branches.outputs.targets-branches) }}
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Destroy the application if it exist
+        id: delete-app
+        continue-on-error: true
+        run: |
+          APP_NAME=$(echo ${{ matrix.value }} | cut -d'/' -f 2)
+          set +e
+          APP_EXIST=$(scalingo apps | grep -c APP_NAME)
+          set -e
+          if [[ $APP_EXIST -eq 1 ]]; then (echo APP_NAME | scalingo -a APP_NAME destroy); else echo 'App not found'; fi
