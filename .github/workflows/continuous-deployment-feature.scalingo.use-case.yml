@@ -12,7 +12,7 @@ on:
 #      - feature/*
 
 env:
-  application-name: ${{ secrets.APPLICATION_NAME }}
+  application-name: 'romain-cambonie-test'
   reference-application-name: 'romain-cambonie-test-production'
   node-version: '16.15.0'
   addon-plan-postgresql: 'postgresql-sandbox'
