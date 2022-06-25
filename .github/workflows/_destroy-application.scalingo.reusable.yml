@@ -30,12 +30,8 @@ jobs:
       - name: Destroy the application if it exist
         id: delete-app
         run: |
-          scalingo -v
           APP_NAME=${{ inputs.application-alias }}
-          echo $APP_NAME
           set +e
           APP_EXIST=$(scalingo apps | grep -c $APP_NAME)
           set -e
-          if [[ $APP_EXIST -eq 1 ]]; then echo 'App found'; else echo 'App not found'; fi
-
-        # scalingo -a $APP_NAME destroy --force
+          if [[ $APP_EXIST -eq 1 ]]; then scalingo -a $APP_NAME destroy --force; else echo 'App not found'; fi
