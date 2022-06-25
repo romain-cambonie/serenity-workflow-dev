@@ -21,6 +21,6 @@ jobs:
       - get-deleted-branch-ref
     uses: ./.github/workflows/_destroy-application.scalingo.reusable.yml
     with:
-      application-alias: ${{ needs.get-deleted-branch-ref.outputs.deleted-branch-ref }}
+      application-alias: ${{ format('{0}-{1}', secrets.APPLICATION_NAME , needs.get-deleted-branch-ref.outputs.deleted-branch-ref) }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
