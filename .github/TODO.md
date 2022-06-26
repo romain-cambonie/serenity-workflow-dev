@@ -13,8 +13,6 @@
 - front application example use case
 
 - general:
-  - (finops) 
-  - (qol) workflow that delete old workflows runs
   - (qol) workflow renovate bot github actions + config
 
 - extract "nightly docker build that target a github executable release" (docker-scalingo-cli)
