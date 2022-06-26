@@ -1,34 +1,88 @@
 name: QOL - Delete Specific Workflows Runs
 # Every morning around 8:00 GMT
 
+# TO FIX
+# Output names are shared so we cannot have a matrix that set an output
+# To have bactch delete we neeed to make this a reusable and call it with a matrix
+
 on:
   workflow_dispatch:
+    inputs:
+      workflow-name:
+        type: choice
+        description: What workflow to clean runs
+        required: true
+        options:
+          - continuous-deployment-feature.clevercloud.use-case.yml
+          - continuous-deployment-feature.scalingo.use-case.yml
+          - continuous-deployment-production.scalingo.use-case.yml
+          - event-on-feature-branch-deletion-remove-demo-application.clevercloud.event.yml
+          - event-on-feature-branch-deletion-remove-demo-application.scalingo.event.yml
+          - qol-delete-workflow-runs.use-case.yml
+          - schedule-start-demo-instances.clevercloud.use-case.yml
+          - schedule-stop-demo-instances.clevercloud.use-case.yml
+          - schedule-stop-demo-instances.scalingo.use-case.yml
+          - setup_deployer.clevercloud.setup.yml
+
 #  schedule:
 #    #Monday through Friday around 7:00 UTC (not using exact hours helps with runners availability)
 #    - cron: '58 6 * * 1,2,3,4,5'
 
+# Multiline Flow Scalar (https://yaml-multiline.info/)
+# Separate workflow names by a comma.
+#env:
+#  workflows: "
+#    continuous-deployment-feature.clevercloud.use-case.yml
+#    "
+
+
+
 jobs:
+#  dynamic-variables:
+#    outputs:
+#      workflows: ${{ steps.workflows.outputs.value }}
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Workflows as matrix ready sequence string from env variable
+#        id: workflows
+#        run: |
+#          WORKFLOWS="${{ github.event.inputs.workflow-name }}"
+#          WORKFLOWS="${WORKFLOWS//' '/''}"
+#          WORKFLOWS="${WORKFLOWS//','/'","'}"
+#          WORKFLOWS=[\"$WORKFLOWS\"]
+#          echo "::set-output name=value::$WORKFLOWS"
+
+        
+
   enumerate-runs:
     runs-on: ubuntu-latest
     outputs:
       runs: ${{ steps.enumerate-workflow-runs.outputs.value }}
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+#    strategy:
+#      matrix:
+#        value: ${{ fromJSON(needs.dynamic-variables.outputs.workflows) }}
     steps:
-      - name: List workflow runs
+      - name: List workflow runs by workflow id/name
         id: enumerate-workflow-runs
         run: |
-          RUNS=$(gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/27624571/runs --jq '.workflow_runs.[].id')
-          echo $RUNS
+          RUNS=$(gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/${{ github.event.inputs.workflow-name }}/runs --jq '.workflow_runs.[].id')
+          RUNS="${RUNS//$'\n'/','}"
           echo '::set-output name=value::['$RUNS']'
 
   delete-runs:
     needs:
       - enumerate-runs
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    if: ${{ needs.enumerate-runs.outputs.runs != '[]' && needs.enumerate-runs.outputs.runs != '' }}
     strategy:
       matrix:
-        value: ${{ fromJSON(${{ needs.enumerate-runs.outputs.runs }}) }}
+        value: ${{ fromJSON(needs.enumerate-runs.outputs.runs) }}
       max-parallel: 3
     steps:
-      - name: Delete workflow run
+      - name: Delete a run by run id
         run: |
-          echo ${{ matrix.value }}
+          gh api --method DELETE -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ matrix.value }}
