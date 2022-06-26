@@ -1,0 +1,27 @@
+name: Reusable QOL Delete Specific Wokflows runs
+
+on:
+  workflow_call:
+    inputs:
+      older-than:
+        description: 'Delete runs older than X days'
+        required: true
+        type: string
+
+      opt-in-workflows-names-list-as-json-string:
+        description: 'Comma separated json array as string eg: ["workflow1.yml","workflow2.yml"]'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        value: ${{ fromJSON(${{ github.event.inputs.opt-in-workflows-names-list-as-json-string }}) }}
+      max-parallel: 3
+    steps:
+      - name: List workflow runs for workflow id/name
+        run: |
+          echo ${{ matrix.value }}
+          gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/${{ matrix.value }}/runs

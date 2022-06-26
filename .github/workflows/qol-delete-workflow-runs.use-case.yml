@@ -1,0 +1,34 @@
+name: QOL - Delete Specific Workflows Runs
+# Every morning around 8:00 GMT
+
+on:
+  workflow_dispatch:
+#  schedule:
+#    #Monday through Friday around 7:00 UTC (not using exact hours helps with runners availability)
+#    - cron: '58 6 * * 1,2,3,4,5'
+
+jobs:
+  enumerate-runs:
+    runs-on: ubuntu-latest
+    outputs:
+      runs: ${{ steps.enumerate-workflow-runs.outputs.value }}
+    steps:
+      - name: List workflow runs
+        id: enumerate-workflow-runs
+        run: |
+          RUNS=$(gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/27624571/runs --jq '.workflow_runs.[].id')
+          echo $RUNS
+          echo '::set-output name=value::['$RUNS']'
+
+  delete-runs:
+    needs:
+      - enumerate-runs
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        value: ${{ fromJSON(${{ needs.enumerate-runs.outputs.runs }}) }}
+      max-parallel: 3
+    steps:
+      - name: Delete workflow run
+        run: |
+          echo ${{ matrix.value }}
