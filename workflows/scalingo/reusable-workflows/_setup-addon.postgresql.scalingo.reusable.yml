@@ -39,4 +39,3 @@ jobs:
         if: steps.postgresql-addon-exist.outputs.postgresql-addon-exist == 0
         run: |
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
-          sleep ${{ inputs.wait-before-provisionning-extentions }}
