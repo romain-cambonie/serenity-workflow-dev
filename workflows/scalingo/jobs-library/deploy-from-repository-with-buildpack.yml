@@ -1,0 +1,43 @@
+inputs:
+  scalingo-remote-git-url
+  scalingo-ssh-host-domain
+  application-name
+  deployer-private-ssh-key
+  repository-url
+
+
+deploy-from-repository-with-buildpack:
+  runs-on: ubuntu-latest
+  needs:
+    - prepare-application
+
+  steps:
+    - name: Initialise a local git repository for deployment (a scalingo deployment is a push to their remote)
+      run: |
+        git clone {{ inputs.repository-url }} .
+        rm -rf .git
+        git config --global init.defaultBranch master
+        git config --global user.email dummy@email.fr
+        git config --global user.name ScalingoDeployer
+        git config --global push.autoSetupRemote true
+        git init .
+        git add .
+        git remote add scalingo ${{ inputs.scalingo-remote-git-url }}:${{ inputs.application-name }}.git
+        git commit -m "Release artifact"
+
+    - name: Set up ssh authentification to scalingo by setting the private key and known_hosts file
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ needs.prepare-application.outputs.deployer-private-ssh-key }}" > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ inputs.scalingo-ssh-host-domain }} >> ~/.ssh/known_hosts
+
+    - name: Deploy - Push to remote to deploy
+      run: |
+        OUTPUT_AS_MULTILINE=$(git push scalingo -f)
+        OUTPUT_AS_HYBRID="${OUTPUT_AS_MULTILINE//'%'/'%25'}"
+        OUTPUT_AS_HYBRID="${OUTPUT_AS_HYBRID//$'\n'/'%0A'}"
+        OUTPUT_AS_SINGLELINE="${OUTPUT_AS_HYBRID//$'\r'/'%0D'}"
+        set +e
+        $HAS_ERROR=$($OUTPUT_AS_SINGLELINE | grep -c 'Error deploying the application' }})
+        set -e
+        if [[ $HAS_ERROR -eq 1 ]]; then exit 1; fi

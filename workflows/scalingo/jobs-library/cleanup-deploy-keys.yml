@@ -1,0 +1,17 @@
+inputs:
+  application-name
+
+cleanup-deploy-keys:
+  needs:
+    - deploy-from-release-artifact
+
+  runs-on: ubuntu-latest
+  container:
+    image: rcambonie/scalingo-cli
+  steps:
+    - name: Login with api-token
+      run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+    - name: Remove the transient ssh-key from logged profile
+      run: scalingo keys-remove ${{ inputs.application-name }}
+      continue-on-error: true
