@@ -1,9 +1,26 @@
-inputs:
-  application-name
+name: zReusable Prepare Application Scalingo
+#prepare-application
+#deploy-from-release-artifact
+#cleanup-deploy-keys
 
-outputs:
-  deployer-private-ssh-key
+on:
+  workflow_call:
+    inputs:
+      application-name:
+        required: true
+        type: string
+        # Should have a maximum length of 47 characters
 
+    secrets:
+      SCALINGO_API_TOKEN:
+        required: true
+
+    outputs:
+      deployer-private-ssh-key:
+        description: 'The private generated SSH key for pushing to the remote'
+        value: ${{ jobs.prepare-application.outputs.deployer-private-ssh-key }}
+
+jobs:
   prepare-application:
     runs-on: ubuntu-latest
     container:
