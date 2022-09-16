@@ -1,0 +1,96 @@
+name: Déployer Métabase sur Scalingo
+
+on:
+  workflow_dispatch:
+    inputs:
+      application-name:
+        description: "Nom de votre application metabase, doit être unique, ne peut pas contenir 'scalingo'"
+        required: true
+
+env:
+  addon-plan-postgresql: "postgresql-starter-512"
+  package-manager: 'yarn'
+  package-manager-dependencies-command: 'yarn install --frozen-lockfile'
+  metabase-repository: 'https://github.com/Scalingo/metabase-scalingo'
+
+jobs:
+  dynamic-variables:
+    outputs:
+      node-version: ${{ steps.variables.outputs.node-version }}
+      application-name: ${{ steps.variables.outputs.application-name }}
+      metabase-repository: ${{ steps.variables.outputs.metabase-repository }}
+      addon-plan-postgresql: ${{ steps.variables.outputs.addon-plan-postgresql }}
+      package-manager: ${{ steps.variables.outputs.package-manager }}
+      package-manager-dependencies-command: ${{ steps.variables.outputs.package-manager-dependencies-command }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Interpolated variables from env variables
+        id: variables
+        run: |
+          echo "::set-output name=node-version::${{ env.node-version }}"
+          echo "::set-output name=application-name::${{ inputs.application-name }}"
+          echo "::set-output name=metabase-repository::${{ env.metabase-repository }}"
+          echo "::set-output name=addon-plan-postgresql::${{ env.addon-plan-postgresql }}"
+          echo "::set-output name=package-manager::${{ env.package-manager }}"
+          echo "::set-output name=package-manager-dependencies-command::${{ env.package-manager-dependencies-command }}"
+
+  prepare-application:
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+    outputs:
+      deployer-private-ssh-key: ${{ steps.deployer-private-ssh-key.outputs.private-key }}
+
+    steps:
+     - name: Login with api-token
+       run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Create application if needed
+
+        run: |
+          set +e
+          APP_ALREADY_EXIST=$(scalingo apps | grep -c ${{ inputs.application-name }} )
+          set -e
+          if [[ $APP_ALREADY_EXIST -eq 0 ]]; then scalingo create ${{ inputs.application-name }}; else echo 'App exists already or has an invalid name'; fi
+
+      - name: Generate transient ssh-keys then add the public key to the logged account for deployment
+        run: |
+          mkdir -p /home/.ssh
+          ssh-keygen -q -t rsa -N '' -f /home/.ssh/id_rsa
+          scalingo keys-add ${{ inputs.application-name }} /home/.ssh/id_rsa.pub
+
+      - name: Set the generate ssh private key as an output, key value will masked in logs, handling the set-output truncate multiline string behaviours (ref:https://github.community/t/set-output-truncates-multiline-strings/16852)
+        id: deployer-private-ssh-key
+        run: |
+          PRIVATE_KEY_AS_MULTILINE=$(cat /home/.ssh/id_rsa)
+          PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_MULTILINE//'%'/'%25'}"
+          PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_SINGLELINE//$'\n'/'%0A'}"
+          PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_SINGLELINE//$'\r'/'%0D'}"
+          echo "::set-output name=private-key::$PRIVATE_KEY_AS_SINGLELINE"
+
+  setup-database-addon:
+    needs:
+      - dynamic-variables
+      - prepare-application
+    uses: ./.github/workflows/_setup-addon.postgresql.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      addon-plan-postgresql: ${{ needs.dynamic-variables.outputs.addon-plan-postgresql }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
+  deploy-from-repository:
+    needs:
+      - dynamic-variables
+      - setup-database-addon
+    uses: ./.github/workflows/_deploy-application-from-repository-with-buildpack.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      repository-url: ${{ needs.dynamic-variables.outputs.repository-url }}
+      scalingo-remote-git-url: "git@ssh.osc-fr1.scalingo.com"
+      scalingo-deployed-domain-url: ".osc-fr1.scalingo.com"
+      scalingo-ssh-host-domain: "ssh.osc-fr1.scalingo.com"
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+

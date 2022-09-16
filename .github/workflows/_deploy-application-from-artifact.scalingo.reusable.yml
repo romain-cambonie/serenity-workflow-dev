@@ -1,26 +1,38 @@
-name: Reusable NodeJS Application Scalingo Deployer Workflow
+name: zReusable Application Deployer From Artifact Scalingo
+#prepare-application
+#deploy-from-release-artifact
+#cleanup-deploy-keys
+
 
 on:
   workflow_call:
     inputs:
-      application-full-name:
+      application-name:
         required: true
         type: string
-      scalingo-remote-domain-url:
+        # Should have a maximum length of 47 characters
+      artifact-name:
+        required: true
+        type: string
+      scalingo-remote-git-url:
         required: false
         type: string
-        default: 'git@ssh.osc-fr1.scalingo.com'
+        default: "git@ssh.osc-fr1.scalingo.com"
+      scalingo-deployed-domain-url:
+        required: false
+        type: string
+        default: ".osc-fr1.scalingo.io"
       scalingo-ssh-host-domain:
         required: false
         type: string
-        default: 'ssh.osc-fr1.scalingo.com'
+        default: "ssh.osc-fr1.scalingo.com"
 
     secrets:
       SCALINGO_API_TOKEN:
         required: true
 
 jobs:
-  create-app-and-environment:
+  prepare-application:
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
@@ -30,23 +42,19 @@ jobs:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-#TODO Better readability for condition ?
-      - name: Create the application with its specific environment if it does not exist (trimmed to the scalingo limit of 47 characters)
+      - name: Create application if needed
+        
         run: |
-          echo ${{ inputs.application-full-name }}
           set +e
-          APP_ALREADY_EXIST=$(scalingo apps | grep -c ${{ inputs.application-full-name }})
+          APP_ALREADY_EXIST=$(scalingo apps | grep -c ${{ inputs.application-name }} )
           set -e
-          if [[ $APP_ALREADY_EXIST -eq 0 ]]; then scalingo create ${{ inputs.application-full-name }}; else echo 'Error app exists already or has an invalid name'; fi
-
-#      - name: Create the application with its specific environment if it does not exist
-#        run: if (( $(scalingo apps | grep -c ${{ inputs.application-full-name }}) == 0 )); then scalingo create ${{ inputs.application-full-name }}; else echo 'Error app exists already or has an invalid name'; fi
+          if [[ $APP_ALREADY_EXIST -eq 0 ]]; then scalingo create ${{ inputs.application-name }}; else echo 'App exists already or has an invalid name'; fi
 
       - name: Generate transient ssh-keys then add the public key to the logged account for deployment
         run: |
           mkdir -p /home/.ssh
           ssh-keygen -q -t rsa -N '' -f /home/.ssh/id_rsa
-          scalingo keys-add ${{ inputs.application-full-name }} /home/.ssh/id_rsa.pub
+          scalingo keys-add ${{ inputs.application-name }} /home/.ssh/id_rsa.pub
 
       - name: Set the generate ssh private key as an output, key value will masked in logs, handling the set-output truncate multiline string behaviours (ref:https://github.community/t/set-output-truncates-multiline-strings/16852)
         id: deployer-private-ssh-key
@@ -57,12 +65,16 @@ jobs:
           PRIVATE_KEY_AS_SINGLELINE="${PRIVATE_KEY_AS_SINGLELINE//$'\r'/'%0D'}"
           echo "::set-output name=private-key::$PRIVATE_KEY_AS_SINGLELINE"
 
-  deploy-to-target-environment:
+  deploy-from-release-artifact:
     runs-on: ubuntu-latest
-    needs: create-app-and-environment
+    needs:
+      - prepare-application
+
     steps:
-      - name: Retrieve project files for current branch
-        uses: actions/checkout@v3
+      - name: Extract artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: {{ inputs.artifact-name }}
 
       - name: Initialise a local git repository for deployment (a scalingo deployment is a push to their remote)
         run: |
@@ -70,23 +82,34 @@ jobs:
           git config --global init.defaultBranch master
           git config --global user.email dummy@email.fr
           git config --global user.name ScalingoDeployer
+          git config --global push.autoSetupRemote true
           git init .
           git add .
-          git remote add scalingo ${{ inputs.scalingo-remote-domain-url }}:${{ inputs.application-full-name }}.git
-          git commit -m "Release bundle"
+          git remote add scalingo ${{ inputs.scalingo-remote-git-url }}:${{ inputs.application-name }}.git
+          git commit -m "Release artifact"
 
       - name: Set up ssh authentification to scalingo by setting the private key and known_hosts file
         run: |
           install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ needs.create-app-and-environment.outputs.deployer-private-ssh-key }}" > ~/.ssh/id_rsa
-          ssh-keyscan -H ssh.osc-fr1.scalingo.com >> ~/.ssh/known_hosts
+          echo "${{ needs.prepare-application.outputs.deployer-private-ssh-key }}" > ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ inputs.scalingo-ssh-host-domain }} >> ~/.ssh/known_hosts
 
-      - name: Push to deploy
+      - name: Deploy - Push to remote to deploy
         run: |
-          git push scalingo -f
+          OUTPUT_AS_MULTILINE=$(git push scalingo -f)
+          OUTPUT_AS_HYBRID="${OUTPUT_AS_MULTILINE//'%'/'%25'}"
+          OUTPUT_AS_HYBRID="${OUTPUT_AS_HYBRID//$'\n'/'%0A'}"
+          OUTPUT_AS_SINGLELINE="${OUTPUT_AS_HYBRID//$'\r'/'%0D'}"
+          set +e
+          $HAS_ERROR=$($OUTPUT_AS_SINGLELINE | grep -c 'Error deploying the application' }})
+          set -e
+          if [[ $HAS_ERROR -eq 1 ]]; then exit 1; fi
+
 
   cleanup-deploy-keys:
-    needs: deploy-to-target-environment
+    needs:
+      - deploy-from-release-artifact
+
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
@@ -95,5 +118,5 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Remove the transient ssh-key from logged profile
-        run: scalingo keys-remove ${{ inputs.application-full-name }}
+        run: scalingo keys-remove ${{ inputs.application-name }}
         continue-on-error: true
