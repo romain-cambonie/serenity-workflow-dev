@@ -6,13 +6,16 @@
 
 # Note: this workflow default input node-version will be updated following the node version LTS.
 
-# TODO Improve with the capacity to run an arbitrary matrix
+# commands-as-string input example: 'lint,prettier:check,test:unit'
 
 name: zReusable Validation Matrix Workflow
 
 on:
   workflow_call:
     inputs:
+      commands-as-comma-separated-string:
+        required: true
+        type: string
       node-version:
         required: false
         type: string
@@ -27,13 +30,22 @@ on:
         default: 'yarn install --frozen-lockfile'
 
 jobs:
+  get-commands:
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@feat/validation
+    with:
+      input-string: ${{ inputs.commands-as-comma-separated-string }}
+      separator: ','
+      field: 'command'
+
   validation:
     name: ' '
     runs-on: ubuntu-latest
+    needs:
+      - get-commands
     strategy:
       fail-fast: true
       matrix:
-        command: [lint, "prettier:check", "test:unit"]
+        command: ${{ fromJSON(needs.get-commands.outputs.matrix) }}
 
     steps:
       - name: Checkout repository
