@@ -4,7 +4,7 @@
 # Usage: set this workflows as a dependency of your matrixed job.
 
 #tasks-from-string:
-#  uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@feat/validation
+#  uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@master
 #  with:
 #    input-string: 'lint,prettier,test'
 #    separator: ','

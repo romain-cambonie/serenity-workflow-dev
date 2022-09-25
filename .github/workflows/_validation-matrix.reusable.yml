@@ -31,7 +31,7 @@ on:
 
 jobs:
   get-commands:
-    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@feat/validation
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@master
     with:
       input-string: ${{ inputs.commands-as-comma-separated-string }}
       separator: ','
