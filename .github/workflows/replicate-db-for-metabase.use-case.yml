@@ -72,26 +72,13 @@ jobs:
 
   replicate-remote-db:
     needs:
-      - dynamic-variables
       - install-postgresql-extensions
     uses: ./.github/workflows/_replicate-db.postgresql.scalingo.reusable.yml
     with:
-      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      application-name: ${{ inputs.application-name }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
       REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
-
-#  migrate-database:
-#    needs:
-#      - dynamic-variables
-#      - setup-database-addon
-#    uses: ./.github/workflows/_migrate.postgresql.scalingo.reusable.yml
-#    with:
-#      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
-#      migration-dependencies: "node-pg-migrate pg-format date-fns fs-extra ramda zod"
-#    secrets:
-#      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
-#
 
 #  notify-discord:
 #    if: ${{ needs.dynamic-variables.outputs.is-discord-hooked == 'true' }}
