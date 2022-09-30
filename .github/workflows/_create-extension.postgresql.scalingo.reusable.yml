@@ -30,6 +30,8 @@ jobs:
   create-extension:
     name: ' '
     runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
     needs:
       - get-extensions
     strategy:
@@ -45,5 +47,5 @@ jobs:
 
       - name: ${{matrix.extension}}
         env:
-          extension: ${{matrix.extension}}
-        run: echo 'CREATE extension $extension; \q' | scalingo --app ${{ inputs.application-name }} pgsql-console
+          EXTENSION: ${{matrix.extension}}
+        run: echo "CREATE extension $EXTENSION; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
