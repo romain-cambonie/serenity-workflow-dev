@@ -32,9 +32,19 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
+  # TODO This is very ugly, find better solution
+  wait-for-addon:
+    needs:
+      - setup-database-addon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for postgresql addon to be available
+        run: sleep 45
+
   install-postgresql-extensions:
     needs:
       - setup-database-addon
+      - wait-for-addon
     # TODO Change target workflow to
     # romain-cambonie/serenity-workflows/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
     # when ready

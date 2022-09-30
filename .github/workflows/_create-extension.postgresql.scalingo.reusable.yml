@@ -46,6 +46,5 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: ${{matrix.extension}}
-        env:
-          EXTENSION: ${{matrix.extension}}
-        run: echo "CREATE extension $EXTENSION; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
+        run: |
+          echo "CREATE extension ${{matrix.extension}}; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
