@@ -1,4 +1,14 @@
 # This is a Work In Progress
+# Example usage
+# my-replication-job:
+#   uses: romain-cambonie/serenity-workflows/.github/workflows/replicate-db.use-case.yml@master
+#   with:
+#     application-name: 'my-app'
+#     addon-plan-postgresql: 'postgresql-starter-1024'
+#     extensions: 'postgis,hstore'
+#   secrets:
+#     SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
 name: Replicate db
 
 on:
@@ -10,8 +20,13 @@ on:
       addon-plan-postgresql:
         required: true
         type: string
+      extensions:
+        required: true
+        type: string
     secrets:
       SCALINGO_API_TOKEN:
+        required: true
+      REMOTE_DATABASE_URL:
         required: true
 
 jobs:
@@ -32,16 +47,39 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
-  install-postgresql-extentions:
+  # TODO This is very ugly, find better solution
+  wait-for-addon:
+    needs:
+      - setup-database-addon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for postgresql addon to be available
+        run: sleep 45
+
+  install-postgresql-extensions:
+    needs:
+      - setup-database-addon
+      - wait-for-addon
     # TODO Change target workflow to
-    # romain-cambonie/serenity-workflows/.github/workflows/_create-extention.postgresql.scalingo.reusable.yml@master
+    # romain-cambonie/serenity-workflows/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
     # when ready
-    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extention.postgresql.scalingo.reusable.yml@ci/replicate-db
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@ci/replicate-db
     with:
-      extentions-as-comma-separated-string: 'postgis,hstore'
+      extensions-as-comma-separated-string: ${{ inputs.extensions }}
       application-name: ${{ inputs.application-name }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
+  replicate-remote-db:
+    needs:
+      - dynamic-variables
+      - install-postgresql-extensions
+    uses: ./.github/workflows/_replicate-db.postgresql.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+      REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
 
 #  migrate-database:
 #    needs:
@@ -54,17 +92,7 @@ jobs:
 #    secrets:
 #      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 #
-#  clone-immersion-pe-db-data:
-#    needs:
-#      - dynamic-variables
-#      - migrate-database
-#    uses: ./.github/workflows/_dump-restore-remote-data.postgresql.scalingo.reusable.yml
-#    with:
-#      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
-#    secrets:
-#      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
-#      REMOTE_DATABASE_URL: ${{ secrets.PE_PRODUCTION_DATABASE_URL }}
-#
+
 #  notify-discord:
 #    if: ${{ needs.dynamic-variables.outputs.is-discord-hooked == 'true' }}
 #    needs:

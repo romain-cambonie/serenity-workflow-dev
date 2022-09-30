@@ -109,7 +109,7 @@ jobs:
 #    with:
 #      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
 #      addon-plan-postgresql: ${{ needs.dynamic-variables.outputs.addon-plan-postgresql }}
-#      add-extention: true
+#      add-extension: true
 #    secrets:
 #      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 #

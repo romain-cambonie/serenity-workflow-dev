@@ -8,7 +8,7 @@ on:
         required: true
         type: string
 
-      #If using extentions => PostGIS extension requires at least a “Starter 512M” plan to work. (ref : https://doc.scalingo.com/databases/postgresql/extensions)
+      #If using extensions => PostGIS extension requires at least a “Starter 512M” plan to work. (ref : https://doc.scalingo.com/databases/postgresql/extensions)
       addon-plan-postgresql:
         required: true
         type: string
