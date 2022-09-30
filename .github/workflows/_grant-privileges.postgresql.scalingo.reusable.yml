@@ -3,6 +3,9 @@ name: zReusable Grant all privilege on all tables in public schema
 on:
   workflow_call:
     inputs:
+      application-name:
+        required: true
+        type: string
       pg-user:
         required: true
         type: string
@@ -21,7 +24,10 @@ jobs:
       image: rcambonie/scalingo-cli
 
     steps:
-      - name: ${{matrix.extension}}
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Grant privileges
         run: >-
           echo "GRANT CREATE ON SCHEMA public TO ${{ inputs.pg-user }}; 
           GRANT ALL PRIVILEGES ON DATABASE ${{ inputs.database-name }} TO ${{ inputs.pg-user }}; 
