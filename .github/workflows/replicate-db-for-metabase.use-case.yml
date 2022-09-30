@@ -1,4 +1,14 @@
 # This is a Work In Progress
+# Example usage
+# my-replication-job:
+#   uses: romain-cambonie/serenity-workflows/.github/workflows/replicate-db.use-case.yml@master
+#   with:
+#     application-name: 'my-app'
+#     addon-plan-postgresql: 'postgresql-starter-1024'
+#     extensions: 'postgis,hstore'
+#   secrets:
+#     SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
 name: Replicate db
 
 on:
@@ -8,6 +18,9 @@ on:
         required: true
         type: string
       addon-plan-postgresql:
+        required: true
+        type: string
+      extensions:
         required: true
         type: string
     secrets:
@@ -50,7 +63,7 @@ jobs:
     # when ready
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@ci/replicate-db
     with:
-      extensions-as-comma-separated-string: 'postgis,hstore'
+      extensions-as-comma-separated-string: ${{ inputs.extensions }}
       application-name: ${{ inputs.application-name }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
