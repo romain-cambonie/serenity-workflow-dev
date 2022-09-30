@@ -26,6 +26,8 @@ on:
     secrets:
       SCALINGO_API_TOKEN:
         required: true
+      REMOTE_DATABASE_URL:
+        required: true
 
 jobs:
   create-application-on-scalingo:
@@ -68,6 +70,17 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
+  replicate-remote-db:
+    needs:
+      - dynamic-variables
+      - install-postgresql-extensions
+    uses: ./.github/workflows/_replicate-db.postgresql.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+      REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
+
 #  migrate-database:
 #    needs:
 #      - dynamic-variables
@@ -79,17 +92,7 @@ jobs:
 #    secrets:
 #      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 #
-#  clone-immersion-pe-db-data:
-#    needs:
-#      - dynamic-variables
-#      - migrate-database
-#    uses: ./.github/workflows/_dump-restore-remote-data.postgresql.scalingo.reusable.yml
-#    with:
-#      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
-#    secrets:
-#      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
-#      REMOTE_DATABASE_URL: ${{ secrets.PE_PRODUCTION_DATABASE_URL }}
-#
+
 #  notify-discord:
 #    if: ${{ needs.dynamic-variables.outputs.is-discord-hooked == 'true' }}
 #    needs:
