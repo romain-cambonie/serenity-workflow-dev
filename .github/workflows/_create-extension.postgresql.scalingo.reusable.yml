@@ -1,14 +1,14 @@
 # Abstract
-# Create sequentially the given extentions on the application linked postgresql addon
+# Create sequentially the given extensions on the application linked postgresql addon
 
-# extentions-as-comma-separated-string input example: 'lint,prettier:check,test:unit'
+# extensions-as-comma-separated-string input example: 'lint,prettier:check,test:unit'
 
 name: zReusable Create Postgresql Matrix Workflow On Scalingo
 
 on:
   workflow_call:
     inputs:
-      extentions-as-comma-separated-string:
+      extensions-as-comma-separated-string:
         required: true
         type: string
       application-name:
@@ -20,30 +20,30 @@ on:
         required: true
 
 jobs:
-  get-extentions:
+  get-extensions:
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@master
     with:
-      input-string: ${{ inputs.extentions-as-comma-separated-string }}
+      input-string: ${{ inputs.extensions-as-comma-separated-string }}
       separator: ','
-      field: 'extention'
+      field: 'extension'
 
-  create-extention:
+  create-extension:
     name: ' '
     runs-on: ubuntu-latest
     needs:
-      - get-extentions
+      - get-extensions
     strategy:
       fail-fast: true
       # Max parallel 1 assure we will run jobs sequencially
       max-parallel: 1
       matrix:
-        extention: ${{ fromJSON(needs.get-extentions.outputs.matrix) }}
+        extension: ${{ fromJSON(needs.get-extensions.outputs.matrix) }}
 
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: ${{matrix.extention}}
+      - name: ${{matrix.extension}}
         env:
-          EXTENTION: ${{matrix.extention}}
-        run: echo 'CREATE extension $EXTENTION; \q' | scalingo --app ${{ inputs.application-name }} pgsql-console
+          extension: ${{matrix.extension}}
+        run: echo 'CREATE extension $extension; \q' | scalingo --app ${{ inputs.application-name }} pgsql-console

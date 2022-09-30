@@ -18,7 +18,7 @@ on:
         required: true
 
 jobs:
-  # Doing it in two steps helped mitigate errors resulting from some extentions (for example postgis)
+  # Doing it in two steps helped mitigate errors resulting from some extensions (for example postgis)
   # that sometimes do not dump restore schema and data in a working fashion resulting in TOC error
   dump-and-restore-remote-db-data:
     name: Dump and restore the production database to the feature app
