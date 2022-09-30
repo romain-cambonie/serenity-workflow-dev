@@ -63,7 +63,7 @@ jobs:
     # TODO Change target workflow to
     # romain-cambonie/serenity-workflows/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
     # when ready
-    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@ci/replicate-db
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
     with:
       extensions-as-comma-separated-string: ${{ inputs.extensions }}
       application-name: ${{ inputs.application-name }}
