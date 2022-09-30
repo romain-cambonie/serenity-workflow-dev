@@ -3,13 +3,13 @@
 name: Replicate db for metabase
 
 on:
-  workflow_dispatch:
+  workflow_call:
 #  push:
 #    branches:
 #      - master
 
 env:
-  application-name: "immersion-facile-task-reference"
+  application-name: "immersion-facile-db-replication"
   node-version: "16.15.0"
   addon-plan-postgresql: "postgresql-starter-1024"
 
