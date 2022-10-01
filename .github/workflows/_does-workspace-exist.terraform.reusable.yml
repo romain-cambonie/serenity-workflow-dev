@@ -1,0 +1,45 @@
+name: Reusable Terraform get if workspace exist
+
+on:
+  workflow_call:
+    inputs:
+      organisation-name:
+        required: true
+        type: string
+      workspace-name:
+        required: true
+        type: string
+      terraform-api-organizations-endpoint:
+        required: false
+        type: string
+        default: 'https://app.terraform.io/api/v2/organizations/'
+
+    secrets:
+      TF_API_TOKEN:
+        required: true
+
+    outputs:
+      workspace-exist:
+        description: '1 if workspace with the same name exist 0 otherwise'
+        value: ${{ jobs.workspace-exist.outputs.workspace-exist }}
+
+jobs:
+  workspace-exist:
+    runs-on: ubuntu-latest
+    outputs:
+      workspace-exist: ${{ steps.workspace-exist.outputs.workspace-count }}
+    steps:
+      - name: Exist if a name matches the given name
+        id: workspace-count
+        run: >-
+          WORKSPACE_COUNT=$(
+          curl 
+          --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
+          --header "Content-Type: application/vnd.api+json" 
+          --request GET 
+          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces 
+          |
+          jq '.[] | count(.data.name|IN(${{ inputs.workspace-name }}))'
+          )
+          
+          echo "::set-output name=count::$WORKSPACE_COUNT"

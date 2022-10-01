@@ -1,0 +1,53 @@
+name: Reusable Terraform create workspace in organisation
+
+on:
+  workflow_call:
+    inputs:
+      workspace-name:
+        required: true
+        type: string
+      payload-as-json-string:
+        required: true
+        type: string
+      terraform-api-organizations-endpoint:
+        required: false
+        type: string
+        default: 'https://app.terraform.io/api/v2/organizations/'
+
+    secrets:
+      TF_API_TOKEN:
+        required: true
+
+
+jobs:
+  workspace-json-payload:
+    runs-on: ubuntu-latest
+    outputs:
+      payload: ${{ steps.workspace-json-payload.outputs.payload }}
+
+    steps:
+      - name: Generate payload
+        id: workspace-json-payload
+        run: >-
+          WORKSPACE_PAYLOAD=$(
+          jq
+          '{
+            type: "workspaces",
+              attributes: {
+                name: "${{ inputs.workspace-name }}",
+                execution-mode: "remote"
+              }
+          }' | 
+          sed 's/ //g'
+          )
+
+          echo "::set-output name=payload::$WORKSPACE_PAYLOAD"
+
+      - name: Execute create workspace request
+        run: >-
+          curl
+          --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}"
+          --header "Content-Type: application/vnd.api+json"
+          --request POST
+          --data ${{ steps.workspace-json-payload.outputs.payload }}
+          ${{ inputs.terraform-workspace-api-endpoint }}${{ inputs.organisation-name }}/workspaces

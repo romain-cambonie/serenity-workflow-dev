@@ -23,7 +23,7 @@ on:
       payload-as-json-string:
         required: true
         type: string
-      terraform-workspace-variables-api-endpoint:
+      terraform-workspace-api-endpoint:
         required: false
         type: string
         default: 'https://app.terraform.io/api/v2/workspaces/'
@@ -37,10 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Execute api request
-        run: |
-          curl \
-          --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" \
-          --header "Content-Type: application/vnd.api+json" \
-          --request POST \
-          --data ${{ inputs.payload-as-json-string }} \
-          ${{ inputs.terraform-workspace-variables-api-endpoint }}${{ inputs.workspace-id }}/vars
+        run: >-
+          curl
+          --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}"
+          --header "Content-Type: application/vnd.api+json"
+          --request POST
+          --data ${{ inputs.payload-as-json-string }}
+          ${{ inputs.terraform-workspace-api-endpoint }}${{ inputs.workspace-id }}/vars
