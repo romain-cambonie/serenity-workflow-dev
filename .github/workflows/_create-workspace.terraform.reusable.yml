@@ -50,4 +50,4 @@ jobs:
           --header "Content-Type: application/vnd.api+json"
           --request POST
           --data ${{ steps.workspace-json-payload.outputs.payload }}
-          ${{ inputs.terraform-workspace-api-endpoint }}${{ inputs.organisation-name }}/workspaces
+          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces
