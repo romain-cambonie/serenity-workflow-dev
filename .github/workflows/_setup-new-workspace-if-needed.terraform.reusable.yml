@@ -1,4 +1,4 @@
-name: zReusable - Add AWS credentials to workspace
+name: zReusable - Create a ready to use workspace with AWS credentials
 
 on:
   workflow_call:
