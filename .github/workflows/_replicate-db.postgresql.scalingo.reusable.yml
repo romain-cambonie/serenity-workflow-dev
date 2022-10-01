@@ -2,8 +2,6 @@
 name: zReusable Scalingo Postgresql Clone database from postgreurl
 # Clone a database data from its fully qualified url
 
-# TODO Add custom dumps commands ?
-
 on:
   workflow_call:
     inputs:
