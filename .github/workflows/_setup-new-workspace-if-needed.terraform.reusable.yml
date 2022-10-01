@@ -1,0 +1,55 @@
+name: zReusable - Add AWS credentials to workspace
+
+on:
+  workflow_call:
+    inputs:
+      workspace-name:
+        required: true
+        type: string
+      organisation-name:
+        required: true
+        type: string
+      terraform-api-organizations-endpoint:
+        required: false
+        type: string
+        default: 'https://app.terraform.io/api/v2/organizations/'
+    secrets:
+      TF_API_TOKEN:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  does-workspace-exist:
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_does-workspace-exist.terraform.reusable.yml@master
+    with:
+      organisation-name: ${{ inputs.organisation-name }}
+      workspace-name: ${{ inputs.workspace-name }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+
+  create-workspace:
+    needs:
+      - does-workspace-exist
+    if: needs.does-workspace-exist.outputs.workspace-exist == 0
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-workspace.terraform.reusable.yml@master
+    with:
+      organisation-name: ${{ inputs.organisation-name }}
+      workspace-name: ${{ inputs.workspace-name }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+
+  add-aws-credentials-to-workspace:
+    needs:
+      - does-workspace-exist
+    if: needs.does-workspace-exist.outputs.workspace-exist == 0
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_add-aws-credentials-to-workspace.terraform.reusable.yml@master
+    with:
+      organisation-name: ${{ inputs.organisation-name }}
+      workspace-name: ${{ inputs.workspace-name }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

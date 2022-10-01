@@ -1,0 +1,58 @@
+# Payload example (as json)
+# {
+#    "type":"vars",
+#    "attributes": {
+#      "key":"some_key",
+#      "value":"some_value",
+#      "description":"some description",
+#      "category":"terraform",
+#      "hcl":false,
+#      "sensitive":false
+#    }
+# }
+#
+
+# 'https://app.terraform.io/api/v2/organizations/:organization_name/workspaces/:name
+# json response => id
+name: zReusable Terraform get organisation workspace id
+
+on:
+  workflow_call:
+    inputs:
+      organisation-name:
+        required: true
+        type: string
+      workspace-name:
+        required: true
+        type: string
+      terraform-api-organizations-endpoint:
+        required: false
+        type: string
+        default: 'https://app.terraform.io/api/v2/organizations/'
+
+    secrets:
+      TF_API_TOKEN:
+        required: true
+
+    outputs:
+      workspace-id:
+        description: 'The workspace id on terraform cloud'
+        value: ${{ jobs.get-workspace-id-by-name.outputs.workspace-id }}
+
+jobs:
+  get-workspace-id-by-name:
+    runs-on: ubuntu-latest
+    outputs:
+      workspace-id: ${{ steps.get-workspace-id.outputs.workspace-id }}
+    steps:
+      - name: Execute api request
+        id: get-workspace-id
+        run: >-
+          WORKSPACE_ID=$(curl 
+          --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
+          --header "Content-Type: application/vnd.api+json" 
+          --request GET 
+          ${{ inputs.terraform-workspace-variables-api-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name }}
+          | jq '.id')
+          
+          echo "::set-output name=workspace-id::$WORKSPACE_ID"
