@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       workspace-exist: ${{ steps.workspace-exist.outputs.workspace-count }}
+
     steps:
       - name: Exist if a name matches the given name
         id: workspace-count

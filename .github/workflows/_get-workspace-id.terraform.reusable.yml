@@ -52,7 +52,7 @@ jobs:
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
           --header "Content-Type: application/vnd.api+json" 
           --request GET 
-          ${{ inputs.terraform-workspace-variables-api-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name }}
+          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name }}
           | jq '.id')
           
           echo "::set-output name=workspace-id::$WORKSPACE_ID"
