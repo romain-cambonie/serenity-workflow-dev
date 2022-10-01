@@ -6,7 +6,7 @@ on:
       workspace-name:
         required: true
         type: string
-      payload-as-json-string:
+      organisation-name:
         required: true
         type: string
       terraform-api-organizations-endpoint:
