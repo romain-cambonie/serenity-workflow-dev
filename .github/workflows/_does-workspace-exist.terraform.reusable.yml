@@ -6,7 +6,7 @@ on:
       organisation-name:
         required: true
         type: string
-      workspace-name:
+      workspace-name-with-prefix:
         required: true
         type: string
       terraform-api-organizations-endpoint:
@@ -40,9 +40,7 @@ jobs:
           --request GET 
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces 
           |
-          jq '.'
+          jq '.data.[] | count(.attributes.name|IN(${{ inputs.workspace-name-with-prefix }}))
           )
           
           echo "::set-output name=count::$WORKSPACE_COUNT"
-
-  #jq '.[] | count(.data.name|IN(${{ inputs.workspace-name }}))'
