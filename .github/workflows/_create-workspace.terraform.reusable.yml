@@ -41,12 +41,8 @@ jobs:
                 } 
               }
           }')
-          
-          TEST=$(echo $WORKSPACE_PAYLOAD | sed 's/ //g')
-          
-          echo $TEST
 
-          echo "::set-output name=payload::$TEST"
+          echo "::set-output name=payload::$(echo $WORKSPACE_PAYLOAD | sed 's/ //g')"
 
       - name: Execute create workspace request
         run: >-
