@@ -35,7 +35,7 @@ jobs:
         run: >-
           set +e
           
-          TEST=$(curl 
+          COUNT=$(curl 
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
           --header "Content-Type: application/vnd.api+json" 
           --request GET 
@@ -43,14 +43,8 @@ jobs:
           |
           jq '.data | .[] | select(.attributes.name == "${{inputs.workspace-name-with-prefix}}") | length')
           
-          echo $TEST
-          
-          echo [[ $TEST -eq 1 ]]
-          
-          if [[ $TEST -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
+          if [[ $COUNT -gt 0 ]]; then EXIST='true'; else EXIST='false'; fi
           
           set -e
-          
-          echo $EXIST
           
           echo "::set-output name=status::$EXIST"
