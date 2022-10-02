@@ -35,15 +35,17 @@ jobs:
         run: >-
           set +e
           
-          curl 
+          TEST=$(curl 
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
           --header "Content-Type: application/vnd.api+json" 
           --request GET 
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces 
           |
-          jq '.data | .[] | select(.attributes.name == "${{inputs.workspace-name-with-prefix}}") | length'
+          jq '.data | .[] | select(.attributes.name == "${{inputs.workspace-name-with-prefix}}")')
           
-          if [[ $? -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
+          echo $TEST
+          
+          if [[ $TEST -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
           
           set -e
           
