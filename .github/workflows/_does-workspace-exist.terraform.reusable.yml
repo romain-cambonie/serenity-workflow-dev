@@ -40,7 +40,9 @@ jobs:
           --request GET 
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces 
           |
-          jq '.[] | count(.data.name|IN(${{ inputs.workspace-name }}))'
+          jq '.'
           )
           
           echo "::set-output name=count::$WORKSPACE_COUNT"
+
+  #jq '.[] | count(.data.name|IN(${{ inputs.workspace-name }}))'
