@@ -3,7 +3,7 @@ name: Reusable Terraform create workspace in organisation
 on:
   workflow_call:
     inputs:
-      workspace-name:
+      workspace-name-with-prefix:
         required: true
         type: string
       organisation-name:
@@ -34,7 +34,7 @@ jobs:
           '{
             type: "workspaces",
               attributes: {
-                name: "${{ inputs.workspace-name }}",
+                name: "${{ inputs.workspace-name-with-prefix }}",
                 execution-mode: "remote"
               }
           }' | 
