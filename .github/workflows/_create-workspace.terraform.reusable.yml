@@ -40,13 +40,13 @@ jobs:
                   "execution-mode": "remote"
                 } 
               }
-          }'
-          | sed 's/ //g'
-          )
+          }')
           
-          echo $WORKSPACE_PAYLOAD
+          TEST=$(echo $WORKSPACE_PAYLOAD | sed 's/ //g')
+          
+          echo $TEST
 
-          echo "::set-output name=payload::$WORKSPACE_PAYLOAD"
+          echo "::set-output name=payload::$TEST"
 
       - name: Execute create workspace request
         run: >-
