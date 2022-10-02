@@ -70,7 +70,7 @@ jobs:
     needs:
       - dump-and-restore-remote-db-schema
       - variables-from-database-url
-    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_grant-privileges.postgresql.scalingo.reusable.yml@ci/replicate-db
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_grant-privileges.postgresql.scalingo.reusable.yml@master
     with:
       application-name: ${{ inputs.application-name }}
       pg-user: ${{ needs.variables-from-database-url.outputs.pg-user }}
