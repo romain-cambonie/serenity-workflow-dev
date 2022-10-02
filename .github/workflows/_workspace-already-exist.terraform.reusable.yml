@@ -41,9 +41,11 @@ jobs:
           --request GET 
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces 
           |
-          jq '.data | .[] | select(.attributes.name == "${{inputs.workspace-name-with-prefix}}")')
+          jq '.data | .[] | select(.attributes.name == "${{inputs.workspace-name-with-prefix}}") | length')
           
           echo $TEST
+          
+          echo [[ $TEST -eq 1 ]]
           
           if [[ $TEST -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
           
