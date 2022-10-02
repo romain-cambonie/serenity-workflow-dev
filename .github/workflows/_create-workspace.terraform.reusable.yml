@@ -31,13 +31,18 @@ jobs:
         run: >-
           WORKSPACE_PAYLOAD=$(
           jq
-          '{
-            type: "workspaces",
+          '
+          {
+            data:
+            {
+              type: "workspaces",
               attributes: {
                 name: "${{ inputs.workspace-name-with-prefix }}",
                 execution-mode: "remote"
               }
-          }' | 
+            }
+          }
+          ' | 
           sed 's/ //g'
           )
 
