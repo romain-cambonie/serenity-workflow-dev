@@ -30,23 +30,11 @@ jobs:
         id: workspace-json-payload
         run: >-
           WORKSPACE_PAYLOAD=$(
-          jq -r
-          '
-          {
-            data:
-            {
-              type: "workspaces",
-              attributes: {
-                name: "${{ inputs.workspace-name-with-prefix }}",
-                "execution-mode": "remote"
-              }
-            }
-          }
-          ' | 
-          sed 's/ //g'
+          jq '.' <<< '{"data": { "type": "workspaces", "attributes":{"name": "${{ inputs.workspace-name-with-prefix }}", "execution-mode": "remote"} }}'
+          | sed 's/ //g'
           )
           
-          echo plop$WORKSPACE_PAYLOAD
+          echo $WORKSPACE_PAYLOAD
 
           echo "::set-output name=payload::$WORKSPACE_PAYLOAD"
 
