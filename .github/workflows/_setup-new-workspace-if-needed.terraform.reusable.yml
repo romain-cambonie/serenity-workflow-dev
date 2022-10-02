@@ -50,7 +50,7 @@ jobs:
 
   add-aws-credentials-to-workspace:
     needs:
-      - workspace-already-exist
+      - create-workspace
     if: needs.workspace-already-exist.outputs.status == 'false'
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_add-aws-credentials-to-workspace.terraform.reusable.yml@master
     with:

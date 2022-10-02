@@ -30,7 +30,7 @@ jobs:
         id: workspace-json-payload
         run: >-
           WORKSPACE_PAYLOAD=$(
-          jq
+          jq -r
           '
           {
             data:
@@ -45,6 +45,8 @@ jobs:
           ' | 
           sed 's/ //g'
           )
+          
+          echo plop$WORKSPACE_PAYLOAD
 
           echo "::set-output name=payload::$WORKSPACE_PAYLOAD"
 

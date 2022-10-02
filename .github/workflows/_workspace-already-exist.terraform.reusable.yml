@@ -47,4 +47,6 @@ jobs:
           
           set -e
           
+          echo $EXIST
+          
           echo "::set-output name=status::$EXIST"
