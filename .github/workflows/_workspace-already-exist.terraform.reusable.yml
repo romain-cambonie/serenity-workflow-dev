@@ -19,28 +19,32 @@ on:
         required: true
 
     outputs:
-      workspace-exist:
-        description: '1 if workspace with the same name exist 0 otherwise'
-        value: ${{ jobs.workspace-exist.outputs.workspace-exist }}
+      status:
+        description: "'true' if workspace with the same name exist 'false' otherwise"
+        value: ${{ jobs.workspace-already-exist.outputs.status }}
 
 jobs:
-  workspace-exist:
+  workspace-already-exist:
     runs-on: ubuntu-latest
     outputs:
-      workspace-exist: ${{ steps.workspace-exist.outputs.workspace-count }}
+      status: ${{ steps.workspace-already-exist.outputs.status }}
 
     steps:
       - name: Exist if a name matches the given name
-        id: workspace-count
+        id: workspace-already-exist
         run: >-
-          WORKSPACE_COUNT=$(
+          set +e
+          
           curl 
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
           --header "Content-Type: application/vnd.api+json" 
           --request GET 
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces 
           |
-          jq '.[] | count(.data.attributes.name|IN("${{ inputs.workspace-name-with-prefix }}"))'
-          )
+          jq '.data | .[] | select(.attributes.name == "${{workspace-name-with-prefix}}") | length'
           
-          echo "::set-output name=count::$WORKSPACE_COUNT"
+          set -e
+          
+          if [[ $? -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
+          
+          echo "::set-output name=status::$EXIST"

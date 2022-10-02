@@ -27,8 +27,8 @@ on:
         required: true
 
 jobs:
-  does-workspace-exist:
-    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_does-workspace-exist.terraform.reusable.yml@master
+  workspace-already-exist:
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_workspace-already-exist.terraform.reusable.yml@master
     with:
       organisation-name: ${{ inputs.organisation-name }}
       workspace-name-with-prefix: ${{ inputs.workspace-name-with-prefix }}
@@ -38,8 +38,8 @@ jobs:
 
   create-workspace:
     needs:
-      - does-workspace-exist
-    if: needs.does-workspace-exist.outputs.workspace-exist == 0
+      - workspace-already-exist
+    if: needs.workspace-already-exist.outputs.status == 'false'
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-workspace.terraform.reusable.yml@master
     with:
       organisation-name: ${{ inputs.organisation-name }}
@@ -50,8 +50,8 @@ jobs:
 
   add-aws-credentials-to-workspace:
     needs:
-      - does-workspace-exist
-    if: needs.does-workspace-exist.outputs.workspace-exist == 0
+      - workspace-already-exist
+    if: needs.workspace-already-exist.outputs.status == 'false'
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_add-aws-credentials-to-workspace.terraform.reusable.yml@master
     with:
       organisation-name: ${{ inputs.organisation-name }}
