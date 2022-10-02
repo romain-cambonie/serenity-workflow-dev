@@ -55,4 +55,6 @@ jobs:
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name-with-prefix }}
           | jq '.data.id'
           
-          echo "::set-output name=workspace-id::$?"
+          WORKSPACE_ID=$?
+          
+          echo "::set-output name=workspace-id::$WORKSPACE_ID"
