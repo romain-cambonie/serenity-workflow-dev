@@ -40,7 +40,7 @@ on:
         value: ${{ jobs.get-workspace-id-by-name.outputs.workspace-id }}
 
 jobs:
-  get-workspace-id-by-name:
+  get-workspace-id:
     runs-on: ubuntu-latest
     outputs:
       workspace-id: ${{ steps.get-workspace-id.outputs.workspace-id }}
@@ -53,6 +53,6 @@ jobs:
           --header "Content-Type: application/vnd.api+json" 
           --request GET 
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name-with-prefix }}
-          | jq '.id')
+          | jq '.data.attributes.id')
           
           echo "::set-output name=workspace-id::$WORKSPACE_ID"
