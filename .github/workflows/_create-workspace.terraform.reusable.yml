@@ -54,5 +54,5 @@ jobs:
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}"
           --header "Content-Type: application/vnd.api+json"
           --request POST
-          --data ${{ steps.workspace-json-payload.outputs.payload }}
+          --data '${{ steps.workspace-json-payload.outputs.payload }}'
           ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces
