@@ -38,7 +38,7 @@ jobs:
               type: "workspaces",
               attributes: {
                 name: "${{ inputs.workspace-name-with-prefix }}",
-                execution-mode: "remote"
+                "execution-mode": "remote"
               }
             }
           }

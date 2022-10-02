@@ -43,8 +43,10 @@ jobs:
           |
           jq '.data | .[] | select(.attributes.name == "${{inputs.workspace-name-with-prefix}}") | length'
           
+          if [[ $? -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
+          
           set -e
           
-          if [[ $? -eq 1 ]]; then EXIST='true'; else EXIST='false'; fi
+          echo $EXIST
           
           echo "::set-output name=status::$EXIST"
