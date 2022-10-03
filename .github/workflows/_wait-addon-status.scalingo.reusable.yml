@@ -46,7 +46,7 @@ jobs:
       - name: Check if the addon is running
         id: check-status
         run: >-
-          for i in {0..${{ inputs.attempts }}..1};
+          for i in {0..${{ inputs.attempts }}};
           
           do
           
@@ -60,4 +60,4 @@ jobs:
           
           echo "::set-output name=status-reached::'false'"
           
-          exit 0
+          exit 1
