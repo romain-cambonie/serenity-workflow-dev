@@ -1,0 +1,54 @@
+# This is a Work In Progress
+name: Check periodically if addon has the target status
+
+on:
+  workflow_call:
+    inputs:
+      application-name:
+        required: true
+        type: string
+      addon-name:
+        required: true
+        type: string
+      status:
+        required: true
+        type: string
+      interval:
+        required: true
+        type: number
+      attempts:
+        required: true
+        type: number
+
+    secrets:
+      SCALINGO_API_TOKEN:
+        required: true
+
+jobs:
+  addon-status-check:
+    name: Check if the addons is in the target status
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Check if the addon is running
+        run: >-
+          for i in {0..${{ inputs.attempts }}..1}
+          
+          do
+          
+            if (( $(scalingo -app ${{ inputs.application-name }} addons
+            | grep -c '${{ inputs.application-name }}.*${{inputs.addon-name}}') == 1 ));
+            then echo "::set-output name=status-reached::true"; exit 0 ; fi
+          
+            sleep ${{ input.interval }};
+          
+          done
+          
+          echo "::set-output name=status-reached::false";
+          
+          exit 0;

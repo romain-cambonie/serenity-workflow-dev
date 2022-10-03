@@ -21,8 +21,9 @@ on:
         required: true
         type: string
       extensions:
-        required: true
+        required: false
         type: string
+        default: ''
     secrets:
       SCALINGO_API_TOKEN:
         required: true
@@ -47,22 +48,28 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
-  # TODO This is very ugly, find better solution
-  wait-for-addon:
+  wait-addon-running:
     needs:
       - setup-database-addon
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for postgresql addon to be available
-        run: sleep 45
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_wait-addon-status.scalingo.reusable.yml@master
+    with:
+      application-name: ${{ inputs.application-name }}
+      addon-name: 'PostgreSQL'
+      status: 'running'
+      interval: 15
+      attempts: 7
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
+
+  # TODO Change target workflow to
+  # romain-cambonie/serenity-workflows/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
+  # when ready
   install-postgresql-extensions:
     needs:
       - setup-database-addon
-      - wait-for-addon
-    # TODO Change target workflow to
-    # romain-cambonie/serenity-workflows/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
-    # when ready
+      - wait-addon-running
+    if: wait-addon-running.outputs.status-reached == 'true' && inputs.extensions != ''
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
     with:
       extensions-as-comma-separated-string: ${{ inputs.extensions }}
@@ -71,6 +78,7 @@ jobs:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
   replicate-remote-db:
+    if: needs.install-postgresql-extensions.result == 'success' || needs.install-postgresql-extensions.result != 'skipped'
     needs:
       - install-postgresql-extensions
     uses: ./.github/workflows/_replicate-db.postgresql.scalingo.reusable.yml
