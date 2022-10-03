@@ -72,7 +72,7 @@ jobs:
       - setup-database-addon
       - wait-addon-running
 
-    if: needs.wait-addon-running.outputs.status-reached == 'true' && inputs.extensions != ''
+    if: needs.wait-addon-running.outputs.status-reached == 'true'
 
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
     with:
