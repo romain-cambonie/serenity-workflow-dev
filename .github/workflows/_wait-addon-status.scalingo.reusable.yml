@@ -37,12 +37,11 @@ jobs:
 
       - name: Check if the addon is running
         run: >-
-          for i in {0..${{ inputs.attempts }}..1}
-          
-          do;
+          for i in {0..${{ inputs.attempts }}..1}; do;
           
           if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.application-name }}.*${{ inputs.addon-name }}' ) == 1 ));
-          then echo "::set-output name=status-reached::true"; exit 0 ; fi
+          then echo "::set-output name=status-reached::true"; exit 0 ; 
+          fi;
           
           sleep ${{ inputs.interval }};
           
