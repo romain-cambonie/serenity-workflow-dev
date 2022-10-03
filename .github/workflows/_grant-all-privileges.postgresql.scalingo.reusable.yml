@@ -6,10 +6,7 @@ on:
       application-name:
         required: true
         type: string
-      pg-user:
-        required: true
-        type: string
-      database-name:
+      user-database:
         required: true
         type: string
 
@@ -29,11 +26,11 @@ jobs:
 
       - name: Grant privileges
         run: >-
-          echo "GRANT CREATE ON SCHEMA public TO ${{ inputs.pg-user }}; 
-          GRANT ALL PRIVILEGES ON DATABASE ${{ inputs.database-name }} TO ${{ inputs.pg-user }}; 
-          GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${{ inputs.pg-user }}; 
-          GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ${{ inputs.pg-user }}; 
-          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.database-name }} IN SCHEMA public GRANT ALL ON TABLES TO ${{ inputs.pg-user }}; 
-          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.database-name }} IN SCHEMA public GRANT ALL ON SEQUENCES TO ${{ inputs.pg-user }}; 
+          echo "GRANT CREATE ON SCHEMA public TO ${{ inputs.user-database }}; 
+          GRANT ALL PRIVILEGES ON DATABASE ${{ inputs.database-name }} TO ${{ inputs.user-database }}; 
+          GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${{ inputs.user-database }}; 
+          GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ${{ inputs.user-database }}; 
+          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.user-database }} IN SCHEMA public GRANT ALL ON TABLES TO ${{ inputs.user-database }}; 
+          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.user-database }} IN SCHEMA public GRANT ALL ON SEQUENCES TO ${{ inputs.user-database }}; 
           \q;" 
           | scalingo --app ${{ inputs.application-name }} pgsql-console
