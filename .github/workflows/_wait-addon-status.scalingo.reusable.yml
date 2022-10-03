@@ -50,8 +50,8 @@ jobs:
           
           do
           
-          if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.application-name }}.*${{ inputs.addon-name }}' ) -eq 1 ));
-          then echo "success" ; echo "::set-output name=status-reached::'true'"; exit 0; 
+          if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.application-name }}.*${{ inputs.addon-name }}' ) == 1 ));
+          then echo "::set-output name=status-reached::true"; exit 0; 
           fi;
           
           echo "waiting"; sleep ${{ inputs.interval }};
