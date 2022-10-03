@@ -70,7 +70,7 @@ jobs:
     needs:
       - dump-and-restore-remote-db-schema
       - variables-from-database-url
-    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_grant-privileges.postgresql.scalingo.reusable.yml@master
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_grant-all-privileges.postgresql.scalingo.reusable.yml@master
     with:
       application-name: ${{ inputs.application-name }}
       pg-user: ${{ needs.variables-from-database-url.outputs.pg-user }}
@@ -94,7 +94,7 @@ jobs:
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Dump the remote database data and restore it to the local database.
-        run: >
+        run: >-
           scalingo --app ${{ inputs.application-name }} run bash -c "echo 'Installing pgsql-client' &&
           dbclient-fetcher pgsql &&
           echo 'Dumping data' &&

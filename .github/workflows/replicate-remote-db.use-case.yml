@@ -81,7 +81,7 @@ jobs:
     if: needs.install-postgresql-extensions.result == 'success' || needs.install-postgresql-extensions.result != 'skipped'
     needs:
       - install-postgresql-extensions
-    uses: ./.github/workflows/_replicate-db.postgresql.scalingo.reusable.yml
+    uses: ./.github/workflows/_replicate-remote-db.postgresql.scalingo.reusable.yml
     with:
       application-name: ${{ inputs.application-name }}
     secrets:
