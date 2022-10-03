@@ -32,8 +32,6 @@ on:
 
 jobs:
   create-application-on-scalingo:
-    needs:
-      - variables-from-database-url
     uses: romain-cambonie/serenity-workflows/.github/workflows/_prepare-application-and-keys.scalingo.reusable.yml@master
     with:
       application-name: ${{ inputs.application-name }}
