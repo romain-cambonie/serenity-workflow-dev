@@ -39,15 +39,14 @@ jobs:
         run: >-
           for i in {0..${{ inputs.attempts }}..1}
           
-          do
+          do;
           
-            if (( $(scalingo -app ${{ inputs.application-name }} addons
-            | grep -c '${{ inputs.application-name }}.*${{inputs.addon-name}}') == 1 ));
-            then echo "::set-output name=status-reached::true"; exit 0 ; fi
+          if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.application-name }}.*${{ inputs.addon-name }}' ) == 1 ));
+          then echo "::set-output name=status-reached::true"; exit 0 ; fi
           
-            sleep ${{ inputs.interval }};
+          sleep ${{ inputs.interval }};
           
-          done
+          done;
           
           echo "::set-output name=status-reached::false";
           
