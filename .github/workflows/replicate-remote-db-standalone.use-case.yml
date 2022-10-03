@@ -31,7 +31,35 @@ on:
         required: true
 
 jobs:
+  variables-from-database-url:
+    name: Dump and restore the production database to the feature app
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+
+    outputs:
+      user-database: ${{ steps.variables.outputs.pg-user }}
+
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Extract pg-user and database name from connexion string
+        id: variables
+        run: |
+          TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL=)
+          TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL/}
+          regex='.+/(.+)\?.*$'
+          echo "TARGET_DATABASE_URL"
+          echo $TARGET_DATABASE_URL
+          [[ $TARGET_DATABASE_URL =~ $regex ]]
+          echo $BASH_REMATCH
+          echo ${BASH_REMATCH[1]}
+          echo "::set-output name=user-database::${BASH_REMATCH[1]}" 
+
   create-application-on-scalingo:
+    needs:
+      - variables-from-database-url
     uses: romain-cambonie/serenity-workflows/.github/workflows/_prepare-application-and-keys.scalingo.reusable.yml@master
     with:
       application-name: ${{ inputs.application-name }}
