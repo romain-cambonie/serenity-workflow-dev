@@ -51,8 +51,14 @@ jobs:
         id: variables
         run: |
           TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL)
+          echo 'Un'
+          echo $TARGET_DATABASE_URL
           TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL=/}
+          echo 'Deux'
+          echo $TARGET_DATABASE_URL
           regex='postgres://(.+):(.+)@(.+)/(.+)?'
+          echo 'regex'          
+          echo $regex          
           [[ $TARGET_DATABASE_URL =~ $regex ]]
           echo 'plop'
           echo ${BASH_REMATCH[1]}
