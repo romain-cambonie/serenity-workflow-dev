@@ -31,46 +31,6 @@ on:
         required: true
 
 jobs:
-  variables-from-database-url:
-    name: Dump and restore the production database to the feature app
-    runs-on: ubuntu-latest
-    container:
-      image: rcambonie/scalingo-cli
-
-    outputs:
-      pg-user: ${{ steps.variables.outputs.pg-user }}
-      pg-password: ${{ steps.variables.outputs.pg-password }}
-      pg-server: ${{ steps.variables.outputs.pg-server }}
-      pg-database: ${{ steps.variables.outputs.pg-database }}
-
-    steps:
-      - name: Login with api-token
-        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
-
-      - name: Extract pg-user and database name from connexion string
-        id: variables
-        run: |
-          TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL=)
-          echo 'Un'
-          echo $TARGET_DATABASE_URL
-          TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL/}
-          echo 'Deux'
-          echo $TARGET_DATABASE_URL
-          regex='//(.+):(.+)@(.+)/(.+)?'
-          echo 'regex'          
-          echo $regex          
-          [[ $TARGET_DATABASE_URL =~ $regex ]]
-          echo 'plop'
-          echo ${BASH_REMATCH[1]}
-          echo ${BASH_REMATCH[2]}
-          echo ${BASH_REMATCH[3]}
-          echo ${BASH_REMATCH[4]}
-          echo 'plip'
-          echo "::set-output name=pg-user::${BASH_REMATCH[1]}" 
-          echo "::set-output name=pg-password::${BASH_REMATCH[2]}"
-          echo "::set-output name=pg-server::${BASH_REMATCH[3]}"
-          echo "::set-output name=pg-database::${BASH_REMATCH[4]}"
-
   create-application-on-scalingo:
     needs:
       - variables-from-database-url
