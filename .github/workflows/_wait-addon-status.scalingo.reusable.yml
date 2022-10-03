@@ -45,7 +45,7 @@ jobs:
             | grep -c '${{ inputs.application-name }}.*${{inputs.addon-name}}') == 1 ));
             then echo "::set-output name=status-reached::true"; exit 0 ; fi
           
-            sleep ${{ input.interval }};
+            sleep ${{ inputs.interval }};
           
           done
           
