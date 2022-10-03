@@ -50,13 +50,13 @@ jobs:
       - name: Extract pg-user and database name from connexion string
         id: variables
         run: |
-          TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL)
+          TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL=)
           echo 'Un'
           echo $TARGET_DATABASE_URL
-          TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL=/}
+          TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL/}
           echo 'Deux'
           echo $TARGET_DATABASE_URL
-          regex='postgres://(.+):(.+)@(.+)/(.+)?'
+          regex='//(.+):(.+)@(.+)/(.+)?'
           echo 'regex'          
           echo $regex          
           [[ $TARGET_DATABASE_URL =~ $regex ]]
