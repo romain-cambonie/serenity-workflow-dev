@@ -24,6 +24,11 @@ on:
       SCALINGO_API_TOKEN:
         required: true
 
+    outputs:
+      status-reached:
+        description: "'true' if status is reached, 'false' otherwise"
+        value: ${{ jobs.addon-status-check.outputs.status-reached }}
+
 jobs:
   addon-status-check:
     name: Check if the addons is in the target status
@@ -31,11 +36,15 @@ jobs:
     container:
       image: rcambonie/scalingo-cli
 
+    outputs:
+      status-reached: ${{ steps.check-status.outputs.status-reached  }}
+
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
       - name: Check if the addon is running
+        id: check-status
         run: >-
           for i in {0..${{ inputs.attempts }}..1};
           
