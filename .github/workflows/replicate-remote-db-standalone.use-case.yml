@@ -51,7 +51,7 @@ jobs:
           set +e
           TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL=)
           TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL/}
-          regex='test_full_a_6219'
+          regex='.+/(.+)\?.*$'
           echo "TARGET_DATABASE_URL"
           echo $TARGET_DATABASE_URL
           [[ $TARGET_DATABASE_URL =~ $regex ]]
