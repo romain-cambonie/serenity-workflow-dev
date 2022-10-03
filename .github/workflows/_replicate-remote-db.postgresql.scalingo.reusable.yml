@@ -23,20 +23,20 @@ jobs:
       image: rcambonie/scalingo-cli
 
     outputs:
-      user-database: ${{ steps.variables.outputs.pg-user }}
+      user-database: ${{ steps.variables.outputs.user-database }}
 
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: Extract pg-user and database name from connexion string
+      - name: Extract user-database and database name from connexion string
         id: variables
+        shell: bash
         run: |
           TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL=)
           TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL/}
           regex='.+/(.+)\?.*$'
           [[ $TARGET_DATABASE_URL =~ $regex ]]
-          echo ${BASH_REMATCH[1]}
           echo "::set-output name=user-database::${BASH_REMATCH[1]}" 
 
   dump-and-restore-remote-db-schema:
@@ -70,7 +70,7 @@ jobs:
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_grant-all-privileges.postgresql.scalingo.reusable.yml@master
     with:
       application-name: ${{ inputs.application-name }}
-      user-database: ${{ needs.variables-from-database-url.outputs.pg-user }}
+      user-database: ${{ needs.variables-from-database-url.outputs.user-database }}
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
