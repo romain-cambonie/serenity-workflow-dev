@@ -9,7 +9,7 @@
 #   secrets:
 #     SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
-name: Replicate db
+name: Replicate a remote database a standalone app
 
 on:
   workflow_call:
