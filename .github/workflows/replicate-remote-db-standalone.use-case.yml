@@ -46,6 +46,7 @@ jobs:
 
       - name: Extract pg-user and database name from connexion string
         id: variables
+        shell: bash
         run: |
           set +e
           TARGET_DATABASE_URL=$(scalingo --app ${{ inputs.application-name }} env | grep SCALINGO_POSTGRESQL_URL=)
