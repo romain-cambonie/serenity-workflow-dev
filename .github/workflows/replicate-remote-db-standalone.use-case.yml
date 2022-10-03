@@ -56,9 +56,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Wait for addon
-        run: sleep 60s
+        run: sleep 120s
 
-        # TODO Change target workflow to
+  # TODO Change target workflow to
   # romain-cambonie/serenity-workflows/.github/workflows/_create-extension.postgresql.scalingo.reusable.yml@master
   # when ready
   install-postgresql-extensions:
