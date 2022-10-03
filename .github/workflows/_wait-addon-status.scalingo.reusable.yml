@@ -51,13 +51,13 @@ jobs:
           do
           
           if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.application-name }}.*${{ inputs.addon-name }}' ) -eq 1 ));
-          then echo "::set-output name=status-reached::true"; exit 0; 
+          then echo "success" ; echo "::set-output name=status-reached::'true'"; exit 0; 
           fi;
           
           echo "waiting"; sleep ${{ inputs.interval }};
           
           done
           
-          echo "::set-output name=status-reached::false"
+          echo "::set-output name=status-reached::'false'"
           
           exit 0
