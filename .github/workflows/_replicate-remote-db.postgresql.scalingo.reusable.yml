@@ -39,6 +39,12 @@ jobs:
           TARGET_DATABASE_URL=${TARGET_DATABASE_URL//SCALINGO_POSTGRESQL_URL=/}
           regex='postgres://(.+):(.+)@(.+)/(.+)?'
           [[ $TARGET_DATABASE_URL =~ $regex ]]
+          echo 'plop'
+          echo ${BASH_REMATCH[1]}
+          echo ${BASH_REMATCH[2]}
+          echo ${BASH_REMATCH[3]}
+          echo ${BASH_REMATCH[4]}
+          echo 'plip'
           echo "::set-output name=pg-user::${BASH_REMATCH[1]}" 
           echo "::set-output name=pg-password::${BASH_REMATCH[2]}"
           echo "::set-output name=pg-server::${BASH_REMATCH[3]}"
@@ -46,6 +52,8 @@ jobs:
 
   dump-and-restore-remote-db-schema:
     name: Dump and restore the production database to the feature app
+    needs:
+      - variables-from-database-url
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
