@@ -23,7 +23,7 @@ on:
     outputs:
       status:
         description: "'addon-created' or 'addon-existed-previously' if successful"
-        value: ${{ jobs.postgresql-addon-check-or-create.outputs.status }} }}
+        value: ${{ jobs.postgresql-addon-check-or-create.outputs.status || jobs.postgresql-addon-reset.outputs.status }}
 
 jobs:
   addon-postgresql:
@@ -53,7 +53,7 @@ jobs:
 
       - name: Destroy and recreate the PostgreSQL addon.
         if: inputs.reset == true
-        id: postgresql-addon-check-or-create
+        id: postgresql-addon-reset
         shell: bash
         run: >-
           if 
