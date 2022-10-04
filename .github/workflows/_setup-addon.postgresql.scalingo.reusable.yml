@@ -66,17 +66,23 @@ jobs:
           && exit 0;
           fi
           
-          set -e
+         
           
           echo 'Here'
            
           ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep 'PostgreSQL' )
           
+          echo $ADDON_ID_LINE
+          
           echo 'Here 2'
           
           regex='PostgreSQL \| (.*) \| ${{ inputs.addon-plan-postgresql }}'
           
-          [[ $ADDON_ID_LINE =~ regex ]]
+          echo 'Here 2 bis'
+          
+          [[ $ADDON_ID_LINE =~ $regex ]]
+          
+          set -e
           
           echo 'Here 3'
 
