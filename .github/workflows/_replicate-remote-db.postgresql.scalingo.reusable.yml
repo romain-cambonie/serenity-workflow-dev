@@ -96,5 +96,8 @@ jobs:
           echo 'Dumping data' &&
           pg_dump --data-only --format c --no-owner --no-privileges --no-comments --dbname $REMOTE_DATABASE_URL --file dump-data.pgsql &&
           echo 'Finished dumping data' &&
-          pg_restore --data-only --verbose --no-owner --no-privileges --no-comments --dbname "$DATABASE_VAR" dump-data.pgsql"
+          pg_restore --data-only --verbose --no-owner --no-privileges --no-comments --dbname "$DATABASE_VAR" dump-data.pgsql; 
+          exit 0"
+          
+          
 
