@@ -56,6 +56,8 @@ jobs:
         id: postgresql-addon-reset
         shell: bash
         run: >-
+          set +e
+          
           if 
           (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c 'PostgreSQL.*running' ) == 0 ));
           then echo "Creating addon"; 
@@ -63,6 +65,8 @@ jobs:
           && echo "::set-output name=status::'addon-created' 
           && exit 0;
           fi
+          
+          set -e
            
           ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep 'PostgreSQL' )
           
