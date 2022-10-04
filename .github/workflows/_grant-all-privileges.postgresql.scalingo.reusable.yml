@@ -26,11 +26,11 @@ jobs:
 
       - name: Grant privileges
         run: >-
-          echo "GRANT CREATE ON SCHEMA public TO ${{ inputs.user-database }}; 
-          GRANT ALL PRIVILEGES ON DATABASE ${{ inputs.database-name }} TO ${{ inputs.user-database }}; 
-          GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${{ inputs.user-database }}; 
-          GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ${{ inputs.user-database }}; 
-          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.user-database }} IN SCHEMA public GRANT ALL ON TABLES TO ${{ inputs.user-database }}; 
-          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.user-database }} IN SCHEMA public GRANT ALL ON SEQUENCES TO ${{ inputs.user-database }}; 
-          \q;" 
+          echo "GRANT CREATE ON SCHEMA public TO ${{ inputs.user-database }};
+          GRANT ALL PRIVILEGES ON DATABASE ${{ inputs.user-database }} TO ${{ inputs.user-database }};
+          GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${{ inputs.user-database }};
+          GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ${{ inputs.user-database }};
+          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.user-database }} IN SCHEMA public GRANT ALL ON TABLES TO ${{ inputs.user-database }};
+          ALTER DEFAULT PRIVILEGES FOR USER ${{ inputs.user-database }} IN SCHEMA public GRANT ALL ON SEQUENCES TO ${{ inputs.user-database }};
+          \q" 
           | scalingo --app ${{ inputs.application-name }} pgsql-console
