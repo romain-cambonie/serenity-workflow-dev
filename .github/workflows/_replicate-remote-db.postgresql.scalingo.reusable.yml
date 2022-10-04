@@ -58,7 +58,7 @@ jobs:
         run: >
           scalingo --app ${{ inputs.application-name }} run bash -c "echo 'Installing pgsql-client' && 
           dbclient-fetcher pgsql && 
-          echo 'Dumping schema && 
+          echo 'Dumping schema' && 
           pg_dump --schema-only --format c --no-owner --no-privileges --no-comments --exclude-schema 'information_schema' --exclude-schema '^pg_*' --dbname $REMOTE_DATABASE_URL --file dump-schema.pgsql &&
           echo 'Finished dumping schema' && 
           pg_restore --schema-only --verbose --no-owner --no-privileges --no-comments --dbname "$DATABASE_VAR" dump-schema.pgsql"
