@@ -44,7 +44,7 @@ jobs:
         id: postgresql-addon-check-or-create
         run: >-
           if 
-          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.addon-name }}.*running' ) >= 1 ));
+          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c 'PostgreSQL.*running' ) >= 1 ));
           then echo "Addon already exist"; echo "::set-output name=status::'addon-existed-previously'";
           else echo "Creating addon"; 
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
@@ -57,16 +57,16 @@ jobs:
         shell: bash
         run: >-
           if 
-          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.addon-name }}.*running' ) == 0 ));
+          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c 'PostgreSQL.*running' ) == 0 ));
           then echo "Creating addon"; 
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
           && echo "::set-output name=status::'addon-created' 
           && exit 0;
           fi
            
-          ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep '${{ inputs.addon-name }}' )
+          ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep 'PostgreSQL' )
           
-          regex='${{ inputs.addon-name }} \| (.*) \| ${{ inputs.addon-plan-postgresql }}'
+          regex='PostgreSQL \| (.*) \| ${{ inputs.addon-plan-postgresql }}'
           
           [[ $ADDON_ID_LINE =~ regex ]]
 
