@@ -72,13 +72,15 @@ jobs:
            
           ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep 'PostgreSQL' )
           
+          echo $ADDON_ID_LINE
+          
           echo 'Here 2'
           
           regex='PostgreSQL \| (.*) \| ${{ inputs.addon-plan-postgresql }}'
           
-           echo 'Here 2 bis'
+          echo 'Here 2 bis'
           
-          [[ $ADDON_ID_LINE =~ regex ]]
+          [[ $ADDON_ID_LINE =~ $regex ]]
           
           set -e
           
