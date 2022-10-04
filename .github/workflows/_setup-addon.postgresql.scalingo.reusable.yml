@@ -11,6 +11,11 @@ on:
         required: true
         type: string
 
+      reset:
+        required: false
+        type: boolean
+        default: false
+
     secrets:
       SCALINGO_API_TOKEN:
         required: true
@@ -34,7 +39,8 @@ jobs:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: Create PostgreSQL addon with the given plan if not present, does not check the plan level
+      - name: Create PostgreSQL addon with the given plan if not present,
+        if: inputs.reset == false
         id: postgresql-addon-check-or-create
         run: >-
           if 
@@ -44,3 +50,28 @@ jobs:
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
           && echo "::set-output name=status::'addon-created';
           fi;
+
+      - name: Destroy and recreate the PostgreSQL addon.
+        if: inputs.reset == true
+        id: postgresql-addon-check-or-create
+        shell: bash
+        run: >-
+          if 
+          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.addon-name }}.*running' ) == 0 ));
+          then echo "Creating addon"; 
+          scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
+          && echo "::set-output name=status::'addon-created' 
+          && exit 0;
+          fi
+           
+          ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep '${{ inputs.addon-name }}' )
+          
+          regex='${{ inputs.addon-name }} \| (.*) \| ${{ inputs.addon-plan-postgresql }}'
+          
+          [[ $ADDON_ID_LINE =~ regex ]]
+
+          echo ${BASH_REMATCH[1]} | scalingo --app ${{ inputs.application-name }} addons-remove ${BASH_REMATCH[1]}
+          
+          scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
+          
+          echo "::set-output name=status::'addon-created';

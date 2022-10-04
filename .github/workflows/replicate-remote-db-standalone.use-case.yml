@@ -46,7 +46,7 @@ jobs:
   # TODO Change target workflow to
   # romain-cambonie/serenity-workflows/.github/workflows/_setup-addon.postgresql.scalingo.reusable.yml@master
   # when ready
-  setup-database-addon:
+  reset-database-addon:
     needs:
       - create-application-on-scalingo
 
@@ -54,14 +54,13 @@ jobs:
     with:
       application-name: ${{ inputs.application-name }}
       addon-plan-postgresql: ${{ inputs.addon-plan-postgresql }}
+      reset: true
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
   wait-addon-running:
     needs:
-      - setup-database-addon
-
-    if: needs.setup-database-addon.outputs.status == 'addon-created'
+      - reset-database-addon
 
     runs-on: ubuntu-latest
     steps:
@@ -73,7 +72,7 @@ jobs:
   # when ready
   install-postgresql-extensions:
     needs:
-      - setup-database-addon
+      - reset-database-addon
       - wait-addon-running
 
     if: inputs.extensions
@@ -97,18 +96,3 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
       REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
-
-  status-report:
-    needs:
-      - replicate-remote-db
-      - setup-database-addon
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Set outputs
-        run: >-
-          if 
-          (( ${{ needs.setup-database-addon.outputs.status }} == 'addon-created' ));
-          then echo "New database created"; echo "::set-output name=status::'database-created'";
-          else echo "Updated database with new data"; echo "::set-output name=status::'database-updated';
-          fi;
