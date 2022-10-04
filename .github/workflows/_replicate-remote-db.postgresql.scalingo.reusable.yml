@@ -17,7 +17,7 @@ on:
 
 jobs:
   variables-from-database-url:
-    name: Dump and restore the production database to the feature app
+    name: Extract the database-user (same value) identifier
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
@@ -40,7 +40,7 @@ jobs:
           echo "::set-output name=user-database::${BASH_REMATCH[1]}" 
 
   dump-and-restore-remote-db-schema:
-    name: Dump and restore the production database to the feature app
+    name: Dump and restore the production database schema
     needs:
       - variables-from-database-url
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: Dump the remote database schema and restore it to the local database.
+      - name: Dump and restore the remote database schema.
         env:
           REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
           DATABASE_VAR: "$DATABASE_URL"
@@ -78,7 +78,7 @@ jobs:
     needs:
       - grant-all-privileges
     runs-on: ubuntu-latest
-    name: Dump the remote database data and restore it to the local database.
+    name: Dump and restore the remote database data.
     env:
       REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
       DATABASE_VAR: "$DATABASE_URL"
