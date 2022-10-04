@@ -74,4 +74,4 @@ jobs:
           
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
           
-          echo "::set-output name=status::'addon-created';
+          echo "::set-output name=status::'addon-created'"
