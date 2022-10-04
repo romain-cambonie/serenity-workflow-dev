@@ -30,6 +30,11 @@ on:
       REMOTE_DATABASE_URL:
         required: true
 
+    outputs:
+      status:
+        description: "'database-created' or 'database-updated' if successful"
+        value: ${{ jobs.status-report.outputs.status }}
+
 jobs:
   create-application-on-scalingo:
     uses: romain-cambonie/serenity-workflows/.github/workflows/_prepare-application-and-keys.scalingo.reusable.yml@master
@@ -38,20 +43,24 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
-  setup-database-addon:
+  # TODO Change target workflow to
+  # romain-cambonie/serenity-workflows/.github/workflows/_setup-addon.postgresql.scalingo.reusable.yml@master
+  # when ready
+  reset-database-addon:
     needs:
       - create-application-on-scalingo
 
-    uses: romain-cambonie/serenity-workflows/.github/workflows/_setup-addon.postgresql.scalingo.reusable.yml@master
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_setup-addon.postgresql.scalingo.reusable.yml@master
     with:
       application-name: ${{ inputs.application-name }}
       addon-plan-postgresql: ${{ inputs.addon-plan-postgresql }}
+      reset: true
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
 
   wait-addon-running:
     needs:
-      - setup-database-addon
+      - reset-database-addon
 
     runs-on: ubuntu-latest
     steps:
@@ -63,7 +72,7 @@ jobs:
   # when ready
   install-postgresql-extensions:
     needs:
-      - setup-database-addon
+      - reset-database-addon
       - wait-addon-running
 
     if: inputs.extensions
@@ -87,16 +96,3 @@ jobs:
     secrets:
       SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
       REMOTE_DATABASE_URL: ${{ secrets.REMOTE_DATABASE_URL }}
-
-#  notify-discord:
-#    if: ${{ needs.dynamic-variables.outputs.is-discord-hooked == 'true' }}
-#    needs:
-#      - dynamic-variables
-#      - clone-immersion-pe-db
-#    uses: ./.github/workflows/_notify-deployment.discord.reusable.yml
-#    with:
-#      deployer-name: "Scalingo Back Deployer"
-#      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
-#      deployed-domain: ${{ needs.dynamic-variables.outputs.deployed-domain }}
-#    secrets:
-#      DISCORD_NOTIFY_HOOK_URL: ${{ secrets.DISCORD_NOTIFY_HOOK_URL }}

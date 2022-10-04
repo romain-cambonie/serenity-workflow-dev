@@ -1,3 +1,4 @@
+# THIS DOES NOT WORK YET !
 # This is a Work In Progress
 name: Check periodically if addon has the target status
 
@@ -50,7 +51,7 @@ jobs:
           
           do
           
-          if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.application-name }}.*${{ inputs.addon-name }}' ) == 1 ));
+          if (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c '${{ inputs.addon-name }}.*${{ inputs.status }}' ) == 1 ));
           then echo "success" ; echo "::set-output name=status-reached::'true'"; exit 0; 
           fi;
           
