@@ -23,7 +23,7 @@ on:
         required: true
       AWS_ACCESS_KEY_ID:
         required: true
-      AWS_ACCESS_KEY_SECRET:
+      AWS_SECRET_ACCESS_KEY:
         required: true
       GPG_SECRET_SIGNING_PASSPHRASE:
         required: true
@@ -63,5 +63,5 @@ jobs:
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_ACCESS_KEY_SECRET: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       GPG_SECRET_SIGNING_PASSPHRASE: ${{ secrets.GPG_SECRET_SIGNING_PASSPHRASE }}
