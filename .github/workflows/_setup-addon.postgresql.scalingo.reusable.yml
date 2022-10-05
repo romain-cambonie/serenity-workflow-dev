@@ -65,35 +65,18 @@ jobs:
           && echo "::set-output name=status::'addon-created'" 
           && exit 0;
           fi
-          
-         
-          
-          echo 'Here'
            
           ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep 'PostgreSQL' )
           
-          echo $ADDON_ID_LINE
-          
-          echo 'Here 2'
-          
           regex='PostgreSQL \| (.*) \| ${{ inputs.addon-plan-postgresql }}'
-          
-          echo 'Here 2 bis'
           
           [[ $ADDON_ID_LINE =~ $regex ]]
           
           set -e
-          
-          echo 'Here 3'
 
           echo ${BASH_REMATCH[1]} | scalingo --app ${{ inputs.application-name }} addons-remove ${BASH_REMATCH[1]}
           
-          echo 'Here 4'
-          
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
-          
-          echo 'Here 5'
           
           echo "::set-output name=status::'addon-created'"
           
-          echo 'Here 6'
