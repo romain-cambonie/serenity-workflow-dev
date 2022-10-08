@@ -1,0 +1,45 @@
+name: zReusable - Validate syntax and auto-apply plan
+
+on:
+  workflow_call:
+    inputs:
+      workspace-name:
+        required: true
+        type: string
+      infrastructure-repository:
+        required: true
+        type: string
+
+    secrets:
+      TF_API_TOKEN:
+        required: true
+
+jobs:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout client infrastructure repository
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.infrastructure-repository }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Init
+      id: terraform-init
+      run: terraform init
+      env:
+        TF_WORKSPACE: ${{ inputs.workspace-name }}
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color -input=false
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false
