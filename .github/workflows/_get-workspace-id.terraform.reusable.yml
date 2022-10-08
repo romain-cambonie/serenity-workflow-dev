@@ -22,7 +22,7 @@ on:
       organisation-name:
         required: true
         type: string
-      workspace-name-with-prefix:
+      workspace-name:
         required: true
         type: string
       terraform-api-organizations-endpoint:
@@ -52,7 +52,7 @@ jobs:
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}" 
           --header "Content-Type: application/vnd.api+json" 
           --request GET 
-          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name-with-prefix }}
+          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name }}
           | jq '.data.id'
           
           WORKSPACE_ID=$?

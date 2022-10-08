@@ -1,0 +1,45 @@
+name: Terraform full provision process
+
+on:
+  workflow_call:
+    inputs:
+      organisation-name:
+        type: string
+        required: true
+      workspace-name:
+        type: string
+        required: true
+      infrastructure-repository:
+        required: true
+        type: string
+    secrets:
+      TF_API_TOKEN:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY :
+        required: true
+      GPG_SECRET_SIGNING_PASSPHRASE:
+        required: true
+
+jobs:
+  setup-workspace-if-needed:
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_setup-new-workspace-if-needed.terraform.reusable.yml@master
+    with:
+      organisation-name: ${{ inputs.organisation-name }}
+      workspace-name: ${{ inputs.workspace-name }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GPG_SECRET_SIGNING_PASSPHRASE: ${{ secrets.GPG_SECRET_SIGNING_PASSPHRASE }}
+
+  validate-and-apply:
+    needs:
+      - setup-workspace-if-needed
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_validate-and-apply.terraform.reusable.yml@master
+    with:
+      infrastructure-repository: romain-cambonie/average-client-infrastructure
+      workspace-name: ${{ inputs.terraform-workspace }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}

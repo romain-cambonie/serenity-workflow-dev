@@ -3,7 +3,7 @@ name: zReusable - Add AWS credentials to workspace
 on:
   workflow_call:
     inputs:
-      workspace-name-with-prefix:
+      workspace-name:
         required: true
         type: string
       organisation-name:
@@ -53,7 +53,7 @@ jobs:
           --header "Authorization: Bearer ${{ secrets.TF_API_TOKEN }}"
           --header "Content-Type: application/vnd.api+json"
           --request GET
-          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name-with-prefix }}
+          ${{ inputs.terraform-api-organizations-endpoint }}${{ inputs.organisation-name }}/workspaces/${{ inputs.workspace-name }}
           | jq '.data.id')
         
           echo "::set-output name=workspace-id::$WORKSPACE_ID"
