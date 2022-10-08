@@ -39,7 +39,7 @@ jobs:
       - setup-workspace-if-needed
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_validate-and-apply.terraform.reusable.yml@master
     with:
-      infrastructure-repository: romain-cambonie/average-client-infrastructure
+      infrastructure-repository: ${{ inputs.infrastructure-repository }}
       workspace-name: ${{ inputs.terraform-workspace }}
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
