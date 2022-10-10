@@ -1,14 +1,14 @@
 # Abstract
-# Create sequentially the given extensions on the application linked postgresql addon
+# Create sequentially the given views on the application linked postgresql addon
 
-# extensions-as-comma-separated-string input example: 'lint,prettier:check,test:unit'
+# views-as-comma-separated-string input example: 'view_siret_with_department_region,view_contact_requests'
 
-name: zReusable Create Postgresql Extention Matrix Workflow On Scalingo
+name: zReusable Create Postgresql Views Matrix Workflow On Scalingo
 
 on:
   workflow_call:
     inputs:
-      extensions-as-comma-separated-string:
+      views-as-comma-separated-string:
         required: true
         type: string
       application-name:
@@ -20,31 +20,31 @@ on:
         required: true
 
 jobs:
-  get-extensions:
+  get-views:
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_matrix-from-string.reusable.yml@master
     with:
-      input-string: ${{ inputs.extensions-as-comma-separated-string }}
+      input-string: ${{ inputs.views-as-comma-separated-string }}
       separator: ','
-      field: 'extension'
+      field: 'views'
 
-  create-extension:
+  refresh-views:
     name: ' '
     runs-on: ubuntu-latest
     container:
       image: rcambonie/scalingo-cli
     needs:
-      - get-extensions
+      - get-views
     strategy:
       fail-fast: true
       # Max parallel 1 assure we will run jobs sequencially
       max-parallel: 1
       matrix:
-        extension: ${{ fromJSON(needs.get-extensions.outputs.matrix) }}
+        view: ${{ fromJSON(needs.get-views.outputs.matrix) }}
 
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: ${{matrix.extension}}
+      - name: ${{matrix.view}}
         run: |
-          echo "CREATE extension ${{matrix.extension}}; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
+          echo "REFRESH MATERIALIED VIEW ${{matrix.view}}; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
