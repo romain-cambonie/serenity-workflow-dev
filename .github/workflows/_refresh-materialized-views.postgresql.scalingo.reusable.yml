@@ -47,4 +47,4 @@ jobs:
 
       - name: ${{matrix.view}}
         run: |
-          echo "REFRESH MATERIALIED VIEW ${{matrix.view}}; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
+          echo "REFRESH MATERIALIZED VIEW ${{matrix.view}}; \q" | scalingo --app ${{ inputs.application-name }} pgsql-console
