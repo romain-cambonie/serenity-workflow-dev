@@ -30,7 +30,7 @@ jobs:
       - name: Retrieve an extract build bundle
         uses: actions/download-artifact@v3
         with:
-          name: build-bundle
+          name: bundle
           path: .
 
       - name: Add .htaccess for application entrypoint
