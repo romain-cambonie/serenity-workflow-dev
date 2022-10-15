@@ -22,6 +22,12 @@ on:
       GPG_SECRET_SIGNING_PASSPHRASE:
         required: true
 
+    outputs:
+      terraform-output:
+        description: 'the terraform output from output.tf files'
+        value: ${{ jobs.validate-and-apply.outputs.output }}
+
+
 jobs:
   setup-workspace-if-needed:
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_setup-new-workspace-if-needed.terraform.reusable.yml@master

@@ -1,0 +1,68 @@
+# Abstract
+# This workflow build the minimal node executable build
+# Note: this workflow default input node-version will be updated following the node version LTS.
+
+name: zReusable Build Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        required: false
+        type: string
+        default: 'lts/*'
+      artifact-name:
+        required: false
+        type: string
+        default: 'bundle'
+      build-command:
+        required: false
+        type: string
+        default: 'build'
+      start-command:
+        required: false
+        type: string
+        default: 'start'
+      package-manager:
+        required: false
+        type: string
+        default: 'yarn'
+      package-manager-dependencies-command:
+        required: false
+        type: string
+        default: 'yarn install --frozen-lockfile'
+
+jobs:
+  build-and-upload:
+    name: ' '
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ needs.dynamic-variables.outputs.node-version }}
+          cache: ${{ needs.dynamic-variables.outputs.package-manager }}
+
+      - name: Install dependencies (prefer frozen)
+        run: ${{ inputs.package-manager-dependencies-command }}
+
+      - name: Build
+        run: ${{ inputs.package-manager }} ${{ inputs.build-command }}
+
+      - name: Minimal package.json to run build
+        run: |
+          touch filtered.json
+          cat package.json | jq '{name, scripts: {start: .scripts.${{ inputs.start-command }}}, dependencies}' > filtered.json
+          mv filtered.json package.json
+
+      - name: Upload build bundle as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{inputs.artifact-name}}
+          path: |
+            package.json
+            dist
