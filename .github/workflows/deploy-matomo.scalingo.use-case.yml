@@ -106,7 +106,7 @@ jobs:
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
-      - name: Login with api-token
-        run: scalingo --app ${{ inputs.application-name }} run bash -c "bash bin/first-deploy-init.sh"
+      - name: Initialize db and users through one-off container
+        run: scalingo --app ${{ inputs.application-name }} run bash -c "echo 'starting first deploy script' && bash bin/first-deploy-init.sh ; exit 0"
 
 
