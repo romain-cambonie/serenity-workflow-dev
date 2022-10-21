@@ -62,6 +62,8 @@ jobs:
       - setup-database-addon
       - prepare-application
     runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
 
     steps:
       - name: Login with api-token
@@ -93,9 +95,7 @@ jobs:
 
   initialize-db-and-users:
     needs:
-      - dynamic-variables
-      - setup-database-addon
-      - prepare-application
+      - deploy-from-repository
     runs-on: ubuntu-latest
     steps:
       - name: Login with api-token
