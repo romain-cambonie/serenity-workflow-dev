@@ -112,7 +112,7 @@ jobs:
           scalingo --app ${{ inputs.application-name }} run bash -c "echo 'create db and migrate' && 
           bin/generate-config-ini.sh;
           php console database:create-tables;
-          php console core:update --yes
+          php console core:update --yes;
           exit 0"
 
       - name: Create superuser
