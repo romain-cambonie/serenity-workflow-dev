@@ -123,7 +123,7 @@ jobs:
         run: >-
           scalingo --app ${{ inputs.application-name }} run bash -c "echo 'create superuser' && 
           bin/generate-config-ini.sh;
-          php console admin:create-superuser --login $LOGIN --email $EMAIL --password $PASSWORD;
+          php console admin:create-superuser --login "$LOGIN" --email "$EMAIL" --password "$PASSWORD";
           exit 0"
 
       - name: Create site
@@ -132,8 +132,8 @@ jobs:
           SITE_URL: "$MATOMO_INIT_SITE_URL"
         run: >-
           scalingo --app ${{ inputs.application-name }} run bash -c "echo 'create site' && 
-          bin/generate-config-ini.sh;
-          php console admin:create-site --name $SITE_NAME --url $SITE_URL;
+          bin/generate-config-ini.sh &&
+          php console admin:create-site --name "$SITE_NAME" --url "$SITE_URL";
           exit 0"
 
 
