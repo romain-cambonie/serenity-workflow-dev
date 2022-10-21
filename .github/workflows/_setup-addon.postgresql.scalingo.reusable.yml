@@ -48,7 +48,7 @@ jobs:
           then echo "Addon already exist"; echo "::set-output name=status::'addon-existed-previously'";
           else echo "Creating addon"; 
           scalingo --app ${{ inputs.application-name }} addons-add postgresql ${{ inputs.addon-plan-postgresql }}
-          && echo "::set-output name=status::'addon-created';
+          && echo "::set-output name=status::'addon-created'";
           fi;
 
       - name: Destroy and recreate the PostgreSQL addon.
