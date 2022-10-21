@@ -18,7 +18,7 @@ on:
 
 env:
   addon-plan-mysql: "mysql-starter-512"
-  matomo-repository: 'https://github.com/betagouv/matomo-scalingo-deploy'
+  matomo-repository: 'https://github.com/romain-cambonie/matomo-scalingo-deploy'
 
 jobs:
   dynamic-variables:
@@ -107,6 +107,13 @@ jobs:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
       - name: Initialize db and users through one-off container
-        run: scalingo --app ${{ inputs.application-name }} run bash -c "echo 'starting first deploy script' && bash bin/first-deploy-init.sh ; exit 0"
+        run: >-
+          scalingo --app ${{ inputs.application-name }} run bash -c "echo 'starting first deploy script' && 
+          bin/generate-config-ini.sh;
+          php console database:create-tables;
+          php console core:update --yes;
+          php console admin:create-superuser --login $MATOMO_INIT_USER_LOGIN --email $MATOMO_INIT_USER_EMAIL --password $MATOMO_INIT_USER_PASSWORD;
+          php console admin:create-site --name $MATOMO_INIT_SITE_NAME --url $MATOMO_INIT_SITE_URL;
+          exit 0"
 
 
