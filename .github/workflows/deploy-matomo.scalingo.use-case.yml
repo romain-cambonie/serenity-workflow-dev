@@ -82,6 +82,9 @@ jobs:
   deploy-from-repository:
     needs:
       - set-env-variables
+      - dynamic-variables
+      - setup-database-addon
+      - prepare-application
     uses: romain-cambonie/serenity-workflows/.github/workflows/_deploy-application-from-repository-with-buildpack.scalingo.reusable.yml@master
     with:
       application-name: ${{ needs.dynamic-variables.outputs.application-name }}
