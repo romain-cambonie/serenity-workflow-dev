@@ -1,0 +1,82 @@
+name: zReusable Scalingo Mysql Addon Setup
+
+on:
+  workflow_call:
+    inputs:
+      application-name:
+        required: true
+        type: string
+
+      addon-plan-mysql:
+        required: true
+        type: string
+
+      reset:
+        required: false
+        type: boolean
+        default: false
+
+    secrets:
+      SCALINGO_API_TOKEN:
+        required: true
+
+    outputs:
+      status:
+        description: "'addon-created' or 'addon-existed-previously' if successful"
+        value: ${{ jobs.mysql-addon-check-or-create.outputs.status || jobs.mysql-addon-reset.outputs.status }}
+
+jobs:
+  addon-mysql:
+    name: Add the mysql addon if not present
+    runs-on: ubuntu-latest
+    container:
+      image: rcambonie/scalingo-cli
+
+    outputs:
+      status: ${{ steps.mysql-addon-check-or-create.outputs.status }}
+
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Create Mysql addon with the given plan if not present,
+        if: inputs.reset == false
+        id: mysql-addon-check-or-create
+        run: >-
+          if 
+          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c 'MySQL.*running' ) >= 1 ));
+          then echo "Addon already exist"; echo "::set-output name=status::'addon-existed-previously'";
+          else echo "Creating addon"; 
+          scalingo --app ${{ inputs.application-name }} addons-add mysql ${{ inputs.addon-plan-mysql }}
+          && echo "::set-output name=status::'addon-created';
+          fi;
+
+      - name: Destroy and recreate the Mysql addon.
+        if: inputs.reset == true
+        id: mysql-addon-reset
+        shell: bash
+        run: >-
+          set +e
+          
+          if 
+          (( $(scalingo -a ${{ inputs.application-name }} addons | grep -c 'MySQL.*running' ) == 0 ));
+          then echo "Creating addon"; 
+          scalingo --app ${{ inputs.application-name }} addons-add mysql ${{ inputs.addon-plan-mysql }}
+          && echo "::set-output name=status::'addon-created'" 
+          && exit 0;
+          fi
+           
+          ADDON_ID_LINE=$(scalingo -a ${{ inputs.application-name }} addons | grep 'MySQL' )
+          
+          regex='MySQL \| (.*) \| ${{ inputs.addon-plan-mysql }}'
+          
+          [[ $ADDON_ID_LINE =~ $regex ]]
+          
+          set -e
+
+          echo ${BASH_REMATCH[1]} | scalingo --app ${{ inputs.application-name }} addons-remove ${BASH_REMATCH[1]}
+          
+          scalingo --app ${{ inputs.application-name }} addons-add mysql ${{ inputs.addon-plan-mysql }}
+          
+          echo "::set-output name=status::'addon-created'"
+          

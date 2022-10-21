@@ -1,0 +1,106 @@
+name: Déployer Matomo sur Scalingo
+
+on:
+  workflow_dispatch:
+    inputs:
+      application-name:
+        description: "Nom de votre application matomo, doit être unique, ne peut pas contenir 'scalingo'"
+        required: true
+      addon-plan-mysql:
+        required: true
+        description: "Database plan"
+        type: choice
+        options:
+          - "mysql-sandbox"
+          - "mysql-starter-512"
+          - "mysql-starter-1024"
+          - "mysql-starter-2048"
+
+env:
+  addon-plan-mysql: "mysql-starter-512"
+  matomo-repository: 'https://github.com/betagouv/matomo-scalingo-deploy'
+
+jobs:
+  dynamic-variables:
+    outputs:
+      application-name: ${{ steps.variables.outputs.application-name }}
+      matomo-repository: ${{ steps.variables.outputs.metabase-repository }}
+      addon-plan-mysql: ${{ steps.variables.outputs.addon-plan-mysql }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Interpolated variables from env variables
+        id: variables
+        run: |          
+          echo "::set-output name=application-name::${{ inputs.application-name }}"
+          echo "::set-output name=matomo-repository::${{ env.matomo-repository }}"
+          echo "::set-output name=addon-plan-mysql::${{ env.addon-plan-mysql }}"
+
+  prepare-application:
+    needs:
+      - dynamic-variables
+    uses: ./.github/workflows/_prepare-application-and-keys.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
+  setup-database-addon:
+    needs:
+      - dynamic-variables
+      - prepare-application
+    uses: ./.github/workflows/_setup-addon.mysql.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      addon-plan-mysql: ${{ needs.dynamic-variables.outputs.addon-plan-mysql }}
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
+  set-env-variables:
+    needs:
+      - dynamic-variables
+      - setup-database-addon
+      - prepare-application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+
+      - name: Interpolated variables from env variables
+        id: set variables
+        run: |
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_USER_LOGIN=${{ secrets.MATOMO_INIT_USER_LOGIN }}"
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_USER_EMAIL=${{ secrets.MATOMO_INIT_USER_EMAIL }}"
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_USER_PASSWORD=${{ secrets.MATOMO_INIT_USER_PASSWORD }}"
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_SITE_NAME=${{ secrets.MATOMO_INIT_SITE_NAME }}"
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_SITE_URL=${{ secrets.MATOMO_INIT_SITE_URL }}"
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_GENERAL_SALT=${{ secrets.MATOMO_GENERAL_SALT }}"
+          scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_GENERAL_FORCE_SSL=1"
+
+  deploy-from-repository:
+    needs:
+      - set-env-variables
+    uses: ./.github/workflows/_deploy-application-from-repository-with-buildpack.scalingo.reusable.yml
+    with:
+      application-name: ${{ needs.dynamic-variables.outputs.application-name }}
+      repository-url: ${{ needs.dynamic-variables.outputs.matomo-repository }}
+      deployer-private-ssh-key: ${{ needs.prepare-application.outputs.deployer-private-ssh-key }}
+      scalingo-remote-git-url: "git@ssh.osc-fr1.scalingo.com"
+      scalingo-deployed-domain-url: ".osc-fr1.scalingo.com"
+      scalingo-ssh-host-domain: "ssh.osc-fr1.scalingo.com"
+    secrets:
+      SCALINGO_API_TOKEN: ${{ secrets.SCALINGO_API_TOKEN }}
+
+  initialize-db-and-users:
+    needs:
+      - dynamic-variables
+      - setup-database-addon
+      - prepare-application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login with api-token
+        run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
+      - name: Login with api-token
+        run: scalingo --app ${{ inputs.application-name }} run bash -c "bash bin/first-deploy-init.sh"
+
+
