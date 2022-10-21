@@ -62,12 +62,12 @@ jobs:
       - setup-database-addon
       - prepare-application
     runs-on: ubuntu-latest
+
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
 
-      - name: Interpolated variables from env variables
-        id: set variables
+      - name: Set application env variables
         run: |
           scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_USER_LOGIN=${{ secrets.MATOMO_INIT_USER_LOGIN }}"
           scalingo -a ${{ needs.dynamic-variables.outputs.application-name }} env-set "MATOMO_INIT_USER_EMAIL=${{ secrets.MATOMO_INIT_USER_EMAIL }}"
