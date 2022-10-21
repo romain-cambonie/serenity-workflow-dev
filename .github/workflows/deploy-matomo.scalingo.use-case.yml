@@ -118,7 +118,9 @@ jobs:
           bin/generate-config-ini.sh;
           php console database:create-tables;
           php console core:update --yes;
+          sleep 5;
           php console admin:create-superuser --login $LOGIN --email $EMAIL --password $PASSWORD;
+          sleep 5;
           php console admin:create-site --name $SITE_NAME --url $SITE_URL;
           exit 0"
 
