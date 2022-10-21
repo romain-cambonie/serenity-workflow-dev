@@ -106,22 +106,35 @@ jobs:
     steps:
       - name: Login with api-token
         run: scalingo login --api-token=${{ secrets.SCALINGO_API_TOKEN }}
-      - name: Initialize db and users through one-off container
+
+      - name: Initialize db and migrate
+        run: >-
+          scalingo --app ${{ inputs.application-name }} run bash -c "echo 'create db and migrate' && 
+          bin/generate-config-ini.sh;
+          php console database:create-tables;
+          php console core:update --yes
+          exit 0"
+
+      - name: Create superuser
         env:
           LOGIN: "$MATOMO_INIT_USER_LOGIN"
           EMAIL: "$MATOMO_INIT_USER_EMAIL"
           PASSWORD: "$MATOMO_INIT_USER_PASSWORD"
+        run: >-
+          scalingo --app ${{ inputs.application-name }} run bash -c "echo 'create superuser' && 
+          bin/generate-config-ini.sh;
+          php console admin:create-superuser --login $LOGIN --email $EMAIL --password $PASSWORD;
+          exit 0"
+
+      - name: Create site
+        env:
           SITE_NAME: "$MATOMO_INIT_SITE_NAME"
           SITE_URL: "$MATOMO_INIT_SITE_URL"
         run: >-
-          scalingo --app ${{ inputs.application-name }} run bash -c "echo 'starting first deploy script' && 
+          scalingo --app ${{ inputs.application-name }} run bash -c "echo 'create site' && 
           bin/generate-config-ini.sh;
-          php console database:create-tables;
-          php console core:update --yes;
-          sleep 5;
-          php console admin:create-superuser --login $LOGIN --email $EMAIL --password $PASSWORD;
-          sleep 5;
           php console admin:create-site --name $SITE_NAME --url $SITE_URL;
           exit 0"
+
 
 
