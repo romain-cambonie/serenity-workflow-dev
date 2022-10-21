@@ -24,7 +24,7 @@ jobs:
   dynamic-variables:
     outputs:
       application-name: ${{ steps.variables.outputs.application-name }}
-      matomo-repository: ${{ steps.variables.outputs.metabase-repository }}
+      matomo-repository: ${{ steps.variables.outputs.matomo-repository }}
       addon-plan-mysql: ${{ steps.variables.outputs.addon-plan-mysql }}
 
     runs-on: ubuntu-latest
