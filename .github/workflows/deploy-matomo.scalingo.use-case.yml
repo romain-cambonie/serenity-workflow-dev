@@ -39,7 +39,7 @@ jobs:
   prepare-application:
     needs:
       - dynamic-variables
-    uses: ./.github/workflows/_prepare-application-and-keys.scalingo.reusable.yml
+    uses: romain-cambonie/serenity-workflows/.github/workflows/_prepare-application-and-keys.scalingo.reusable.yml@master
     with:
       application-name: ${{ needs.dynamic-variables.outputs.application-name }}
     secrets:
@@ -49,7 +49,7 @@ jobs:
     needs:
       - dynamic-variables
       - prepare-application
-    uses: ./.github/workflows/_setup-addon.mysql.scalingo.reusable.yml
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_setup-addon.mysql.scalingo.reusable.yml@master
     with:
       application-name: ${{ needs.dynamic-variables.outputs.application-name }}
       addon-plan-mysql: ${{ needs.dynamic-variables.outputs.addon-plan-mysql }}
@@ -80,7 +80,7 @@ jobs:
   deploy-from-repository:
     needs:
       - set-env-variables
-    uses: ./.github/workflows/_deploy-application-from-repository-with-buildpack.scalingo.reusable.yml
+    uses: romain-cambonie/serenity-workflows/.github/workflows/_deploy-application-from-repository-with-buildpack.scalingo.reusable.yml@master
     with:
       application-name: ${{ needs.dynamic-variables.outputs.application-name }}
       repository-url: ${{ needs.dynamic-variables.outputs.matomo-repository }}
